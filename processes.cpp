@@ -37,6 +37,10 @@ bool processes::executeOneStep(int id) {
     return processes_map[id].executeOneStep();
 }
 
+std::list<int> processes::getListDependenciesTo(int processId) {
+	return processes_map[processId].listDependenciesTo();
+}
+
 int processes::getReleaseTime(int id){
 	return processes_map[id].getReleaseTime();
 }
@@ -47,6 +51,10 @@ void processes::printProcesses() {
     std::cout << '\n';
 }
 
- bool processes::removeDependency(int from, int id) {
-     return processes_map[from].removeDependency(id);
- }
+int processes::release(int processId){
+	return processes_map[processId].release();
+}
+
+bool processes::removeDependency(int from, int id) {
+	return processes_map[from].removeDependency(id);
+}

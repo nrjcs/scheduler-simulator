@@ -16,9 +16,11 @@ class processes {
         void add_process(int id, int releasetime, int deadline, int executiontime, std::list<int>& dependencies);
         void changeStatus(int processId, int status);
         int getReleaseTime(int processId);
+        std::list<int> getListDependenciesTo(int processId);
         bool executeOneStep(int processId);
         void printProcesses();
-        bool removeDependency(int from_process_id, int process_id);
+        int release(int processId);
+        bool removeDependency(int from_processId, int processId);
     private:
         void addProcessInWhenExecuted(int whichProcess, int intoWhichProcess);
         std::map<int,process> processes_map;

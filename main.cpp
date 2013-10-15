@@ -54,9 +54,9 @@ int main(int argc, char** argv){
     allProcesses.add_process(id,2,1,1,test3);
     addToList(id++,INCOMING);
 
+    printAllLists();
     std::cout << "\n";
     //allProcesses.printProcesses();
-    //printAllLists();
 
     step();
 
@@ -79,8 +79,12 @@ void addToList(int processId,int whichList){
 bool checkIncomingJobs(){
 	if(incomingProcesses[stepClock].size() > 0) {
 		for (std::list<int>::iterator it = incomingProcesses[stepClock].begin(); it != incomingProcesses[stepClock].end(); it++) {
-			std::cout << "ready now: " << *it << '\n';
-			addToList(*it, READY);
+			std::cout << "job " << *it << " released \n";
+			if(allProcesses.release(*it) == READY)
+				addToList(*it, READY);
+			else
+				addToList(*it, WAITING);
+
 		}
 
 		readyProcesses.sort();
@@ -114,9 +118,10 @@ void step() {
 
 	if(callScheduler)
 		scheduler();
-	wait();
 	std::cout << "Processes running: ";
 	printList2(runningProcesses);
+	printAllLists();
+	wait();
 	step();
 }
 
@@ -125,10 +130,16 @@ bool executeStep(){
 	for (std::list<int>::iterator it = runningProcesses.begin(); it != runningProcesses.end(); it++){
 		if(*it != -1) {
 			bool jobEnded = allProcesses.executeOneStep(*it);
-			std::cout << "process " << *it << " does one step";
+			std::cout << "process " << *it << " does one step\n";
 			if(jobEnded) {
-				std::cout << "job ended!";
+				std::cout << "job ended!\n";
 				swapList(*it, RUNNING, EXECUTED);
+				std::list<int> list = allProcesses.getListDependenciesTo(*it);
+
+				for (std::list<int>::iterator it2 = list.begin(); it2 != list.end(); it2++)
+					if(allProcesses.removeDependency(*it2, *it))
+						swapList(*it, WAITING, READY);
+
 				somethingEnded = true;
 			}
 		}
@@ -193,7 +204,9 @@ void printList2(std::list<int>& myList) {
 
 void printMap(std::map<int,std::list<int> > myMap) {
 	for (std::map<int,std::list<int> >::iterator it = myMap.begin(); it != myMap.end(); it++) {
-		std::cout << " release time: " << it->first << " processes: ";
-		printList2((it->second));
+		if(it->first > stepClock) {
+			std::cout << " release time: " << it->first << " processes: ";
+			printList2((it->second));
+		}
 	}
 }
