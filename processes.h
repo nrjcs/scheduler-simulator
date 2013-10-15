@@ -15,6 +15,7 @@ class processes {
         processes(); //construct
         void add_process(int id, int releasetime, int deadline, int executiontime, std::list<int>& dependencies);
         bool executeOneStep(int process_id);
+        void printProcesses();
         bool removeDependency(int from_process_id, int process_id);
     private:
         void addProcessInWhenExecuted(int whichProcess, int intoWhichProcess);

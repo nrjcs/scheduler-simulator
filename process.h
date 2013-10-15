@@ -13,20 +13,21 @@
 class process {
     public:
         process();
-        process(int id, int releasetime, int deadline, int executiontime, std::list<int>& dependencies); //construct
+        int initialise(int id, int releasetime, int deadline, int executiontime, std::list<int>& dependencies); //construct
         void addProcessInWhenExecuted(int id);
         bool executeOneStep();
-        std::list<int> listDependencies();
+        std::list<int> listDependenciesFrom();
+        std::list<int> listDependenciesTo();
         void printProcess();
         bool removeDependency(int id);
     private:
         int releaseTime;
         int deadline;
-        int state;
+        int status;
         int executionTime;
         int executedTime;
         int id;
         std::list<int> dependencies;
-        std::list<int> whenExecuted;
+        std::list<int> dependenciesTo;
         std::list<int> original_dependencies;
 };

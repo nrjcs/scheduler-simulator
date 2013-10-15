@@ -12,14 +12,21 @@
 enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
 
 void printList(std::list<int>& myList) {
-    for (std::list<int>::iterator it = myList.begin(); it != myList.end(); it++)
-        std::cout << *it << ' ';
+	for (std::list<int>::iterator it = myList.begin(); it != myList.end(); it++)
+        std::cout << *it << " ";
     std::cout << '\n';
 }
 
-process::process() {;}
+process::process() {
+	id = -1;
+	status = -1;
+	releaseTime = -1;
+	deadline = -1;
+	executionTime = -1;
+	executedTime = -1;
+}
 
-process::process(int _id, int _releaseTime, int _deadline, int _executionTime, std::list<int>& _dependencies){
+int process::initialise(int _id, int _releaseTime, int _deadline, int _executionTime, std::list<int>& _dependencies){
     id = _id;
     releaseTime = _releaseTime;
     deadline = _deadline;
@@ -30,34 +37,57 @@ process::process(int _id, int _releaseTime, int _deadline, int _executionTime, s
     for (std::list<int>::iterator it = dependencies.begin(); it != dependencies.end(); it++)
         original_dependencies.push_back(*it);
 
-    state = dependencies.size() == 0 ? ( releaseTime == 0 ? READY : INCOMING ) : WAITING;
+    status = releaseTime == 0 ? ( dependencies.size() == 0 ? READY : WAITING ) : INCOMING;
     executedTime = 0;
 
-    printProcess();
+    return status;
 }
 
-void process::addProcessInWhenExecuted(int id) {
-	whenExecuted.push_back(id);
+void process::addProcessInWhenExecuted(int _id) {
+	dependenciesTo.push_back(_id);
 }
 
 bool process::executeOneStep(){
     std::cout << "one step\n";
-    return ++executedTime == executionTime;
+    if(++executedTime == executionTime) {
+    	status = EXECUTED;
+    	return true;
+    }
+    return false;
 }
 
-std::list<int> process::listDependencies() {
+std::list<int> process::listDependenciesFrom() {
 	return dependencies;
 }
 
-void process::printProcess(){
-    std::cout << "Process id: " << id << '\n';;
+std::list<int> process::listDependenciesTo() {
+	return dependenciesTo;
+}
 
-    std::cout << "Dependencies from: \n";
+void process::printProcess(){
+    std::cout << "Process id: " << id << " status: ";
+
+    switch(status){
+    	case EXECUTED: std::cout << "executed\n"; break;
+    	case INCOMING: std::cout << "incoming\n"; break;
+    	case READY: std::cout << "ready\n"; break;
+    	case RUNNING: std::cout << "running\n"; break;
+    	case WAITING: std::cout << "waiting\n"; break;
+    	default: std::cout << "NONE\n";
+    }
+
+    std::cout << "Dependencies from: ";
     printList(original_dependencies);
+
+    std::cout << "Dependencies to: ";
+    printList(dependenciesTo);
 }
 
 bool process::removeDependency(int id){
 	dependencies.remove(id);
-	std::cout << dependencies.size(); 
-	return dependencies.size() == 0;
+	if(dependencies.size() == 0 && status == WAITING) {
+		status = READY;
+		return true;
+	}
+	return false;
 }
