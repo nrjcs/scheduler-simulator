@@ -8,6 +8,7 @@
  * Author: Federico Zanetello                           *
  ********************************************************/
 #include "processes.h"
+enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
 
 processes::processes() {
     //std::cout << "Map created\n";
@@ -28,7 +29,10 @@ void processes::addProcessInWhenExecuted(int whichProcess, int intoWhichProcess)
 	processes_map[intoWhichProcess].addProcessInWhenExecuted(whichProcess);
 }
 
-
+void processes::changeStatus(int processId, int status){
+	if(status == RUNNING)
+		processes_map[processId].execute();
+}
 bool processes::executeOneStep(int id) {
     return processes_map[id].executeOneStep();
 }

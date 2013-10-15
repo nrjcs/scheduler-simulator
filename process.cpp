@@ -33,7 +33,7 @@ void process::addProcessInWhenExecuted(int _id) {
 void process::execute(){
 	status = RUNNING;
 
-	std::cout << "Process " << id << " now assigned running";
+	std::cout << "Process " << id << " now running\n";
 }
 bool process::executeOneStep(){
 	if(status != RUNNING) {
@@ -41,7 +41,6 @@ bool process::executeOneStep(){
 		return false;
 	}
 
-    std::cout << "one step\n";
     if(++executedTime == executionTime) {
     	status = EXECUTED;
     	return true;
