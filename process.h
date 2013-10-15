@@ -15,10 +15,14 @@ class process {
         process();
         int initialise(int id, int releasetime, int deadline, int executiontime, std::list<int>& dependencies); //construct
         void addProcessInWhenExecuted(int id);
+        void execute();
         bool executeOneStep();
+        int getReleaseTime();
         std::list<int> listDependenciesFrom();
         std::list<int> listDependenciesTo();
+        void preempt();
         void printProcess();
+        int release();
         bool removeDependency(int id);
     private:
         int releaseTime;

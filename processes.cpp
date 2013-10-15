@@ -15,23 +15,26 @@ processes::processes() {
 
 void processes::add_process(int id, int releasetime, int deadline, int executiontime, std::list<int>& dependencies){
     std::cout << "Adding process " << id << "\n";
-    processes_map[id].initialise(id, releasetime, deadline, executiontime, dependencies);
+	processes_map[id].initialise(id, releasetime, deadline, executiontime, dependencies);
 
     std::list<int> Dependencieslist = processes_map[id].listDependenciesFrom();
 
-    for (std::list<int>::iterator it = Dependencieslist.begin(); it != Dependencieslist.end(); it++) {
+    for (std::list<int>::iterator it = Dependencieslist.begin(); it != Dependencieslist.end(); it++)
     	addProcessInWhenExecuted(id,*it);
-    }
 }
 
 void processes::addProcessInWhenExecuted(int whichProcess, int intoWhichProcess) {
-	std::cout << "-adding priority " << intoWhichProcess << " < " << whichProcess << "\n";
+	std::cout << " adding priority " << intoWhichProcess << " < " << whichProcess << "\n";
 	processes_map[intoWhichProcess].addProcessInWhenExecuted(whichProcess);
 }
 
 
 bool processes::executeOneStep(int id) {
     return processes_map[id].executeOneStep();
+}
+
+int processes::getReleaseTime(int id){
+	return processes_map[id].getReleaseTime();
 }
 
 void processes::printProcesses() {
