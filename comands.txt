@@ -1,5 +1,0 @@
-compilare classi:
-gcc -c classe.cpp
-
-compilare main:
-g++ -o main main.cpp classe.o classe2.o

@@ -18,7 +18,8 @@ int main(int argc, char** argv){
     processes a;
     a.add_process(0,0,5,3,test);
     a.add_process(1,0,1,1,test2);
+
     // int i = 0;
-    while(!a.executeOneStep(1)) {};
+    //while(!a.executeOneStep(1)) {};
     return 0;
 };

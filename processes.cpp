@@ -14,16 +14,27 @@ processes::processes() {
 };
 
 void processes::add_process(int id, int releasetime, int deadline, int executiontime, std::list<int>& dependencies){
-    processes_map[id] = process(releasetime, deadline, executiontime, dependencies);
+    processes_map[id] = process(id, releasetime, deadline, executiontime, dependencies);
+
+    std::list<int> Dependencieslist = processes_map[id].listDependencies();
+
+    std::cout << "Processes to add to others:\n";
+    for (std::list<int>::iterator it = Dependencieslist.begin(); it != Dependencieslist.end(); it++)
+          std::cout << *it << ' ';
+    std::cout << '\n';
+
     std::cout << "Process " << id << " inserted (Total size: " << processes_map.size() << ")\n";
 }
 
+void processes::addProcessInWhenExecuted(int whichProcess, int intoWhichProcess) {
+	processes_map[intoWhichProcess].addProcessInWhenExecuted(whichProcess);
+}
+
+
 bool processes::executeOneStep(int id) {
-    // processes_map.size();
-    // return true;
     return processes_map[id].executeOneStep();
 }
 
-// bool processes::removeDependency(int from, int id) {
-//     return processes_map[from].removeDependency(id);
-// }
+ bool processes::removeDependency(int from, int id) {
+     return processes_map[from].removeDependency(id);
+ }

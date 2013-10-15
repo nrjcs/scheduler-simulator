@@ -17,5 +17,6 @@ class processes {
         bool executeOneStep(int process_id);
         bool removeDependency(int from_process_id, int process_id);
     private:
+        void addProcessInWhenExecuted(int whichProcess, int intoWhichProcess);
         std::map<int,process> processes_map;
 };
