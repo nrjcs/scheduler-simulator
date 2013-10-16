@@ -11,12 +11,6 @@
 
 enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
 
-void printList(std::list<int>& myList) {
-	for (std::list<int>::iterator it = myList.begin(); it != myList.end(); it++)
-        std::cout << *it << " ";
-    std::cout << '\n';
-}
-
 process::process() {
 	id = -1;
 	status = -1;
@@ -93,10 +87,10 @@ void process::printProcess(){
     }
 
     std::cout << "Dependencies from: ";
-    printList(original_dependencies);
+    utilities::printList(original_dependencies);
 
     std::cout << "Dependencies to: ";
-    printList(dependenciesTo);
+    utilities::printList(dependenciesTo);
 }
 
 int process::release() {

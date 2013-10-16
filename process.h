@@ -7,8 +7,7 @@
  *                                                      *
  * Author: Federico Zanetello                           *
  ********************************************************/
-#include <list>
-#include <iostream>
+#include "utilities.h"
 
 class process {
     public:

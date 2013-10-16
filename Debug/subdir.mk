@@ -4,19 +4,28 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../lists.cpp \
 ../main.cpp \
 ../process.cpp \
-../processes.cpp 
+../processes.cpp \
+../processor.cpp \
+../utilities.cpp 
 
 OBJS += \
+./lists.o \
 ./main.o \
 ./process.o \
-./processes.o 
+./processes.o \
+./processor.o \
+./utilities.o 
 
 CPP_DEPS += \
+./lists.d \
 ./main.d \
 ./process.d \
-./processes.d 
+./processes.d \
+./processor.d \
+./utilities.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
