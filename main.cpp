@@ -40,69 +40,11 @@ void printProcessorsHistory() {
 
 int main(int argc, char** argv){
 	//initialising everything
-	unsigned processesNumber = readFromFile();
-
-//	return 0;
-//
-//	//Initializing processes
-//    int id = 0;
-//    int releaseTime = 0;
-//    processes[id].initialise(id,releaseTime,5,3);
-//    processes[id].addDependency(3);
-//    processes[3].addProcessInWhenExecuted(id);
-//    processes[id].addDependency(2);
-//    processes[2].addProcessInWhenExecuted(id);
-//    incomingProcessesMap[releaseTime].push_back(id);
-//
-//    id++;
-//    processes[id].initialise(id,releaseTime,1,8);
-//    incomingProcessesMap[releaseTime].push_back(id);
-//
-//    id++;
-//    releaseTime = 2;
-//    processes[id].initialise(id,releaseTime,5,3);
-//    incomingProcessesMap[releaseTime].push_back(id);
-//
-//    id++;
-//    releaseTime = 3;
-//    processes[id].initialise(id,releaseTime,1,3);
-//    processes[id].addDependency(1);
-//    processes[1].addProcessInWhenExecuted(id);
-//    processes[id].addDependency(2);
-//    processes[2].addProcessInWhenExecuted(id);
-//    incomingProcessesMap[releaseTime].push_back(id);
-//
-//    id++;
-//    releaseTime = 2;
-//    processes[id].initialise(id,releaseTime,1,3);
-//    processes[id].addDependency(1);
-//    processes[1].addProcessInWhenExecuted(id);
-//    incomingProcessesMap[releaseTime].push_back(id);
-//
-//    id++;
-//	releaseTime = 0;
-//	processes[id].initialise(id,releaseTime,1,10);
-//    incomingProcessesMap[releaseTime].push_back(id);
-//
-//	id++;
-//	releaseTime = 4;
-//	processes[id].initialise(id,releaseTime,1,2);
-//	processes[id].addDependency(1);
-//	processes[1].addProcessInWhenExecuted(id);
-//    incomingProcessesMap[releaseTime].push_back(id);
-//
-//	id++;
-//	releaseTime = 6;
-//	processes[id].initialise(id,releaseTime,1,9);
-//	processes[id].addDependency(4);
-//	processes[4].addProcessInWhenExecuted(id);
-//    incomingProcessesMap[releaseTime].push_back(id);
+	unsigned jobsNumber = readFromFile();
 
     std::cout << "Starting Machine!\n";
-    while(executedJobsList.size() < processesNumber) {
+    while(executedJobsList.size() < jobsNumber)
     	step();
-//    	printProcessorsHistory();
-    }
 
     printProcessorsHistory();
 

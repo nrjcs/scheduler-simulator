@@ -17,7 +17,6 @@ process::process() {
 	deadline = -1;
 	executionTime = -1;
 	executedTime = 0;
-	dependenciesFrom.clear();
 }
 
 void process::addDependency(int _id) {
@@ -42,7 +41,6 @@ void process::initialise(int _id, int _releaseTime, int _deadline, int _executio
     releaseTime = _releaseTime;
     deadline = _deadline;
     executionTime = _executionTime;
-    printProcess();
 }
 
 void process::printDependenciesFrom() {
