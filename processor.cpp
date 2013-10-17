@@ -25,7 +25,10 @@ int processor::executeStep(){
 
 void processor::printHistory(){
 	for (std::vector<int>::size_type i = 0; i != history.size(); ++i)
-		std::cout << history[i] << ".";
+		if(history[i] > 0 && history[i] < 10)
+			std::cout << " 0" << history[i];
+		else
+			std::cout << " " <<  history[i];
 	std::cout << '\n';
 }
 

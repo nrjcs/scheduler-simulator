@@ -18,10 +18,12 @@ namespace lists {
 	std::list<int> executedJobsList;
 
 	void addToList(int processId,int whichList){
+		//std::cout << " adding job process" << processId << " to ";
 		switch(whichList) {
-			case READY: readyProcessesList.push_back(processId); readyProcessesList.sort(); break; //I want this list always sorted
-			case WAITING: waitingProcessesList.push_back(processId); break;
+			case READY: std::cout << "readyList\n"; readyProcessesList.push_back(processId); readyProcessesList.sort(); break; //I want this list always sorted
+			case WAITING: std::cout << "waitingList\n"; waitingProcessesList.push_back(processId); break;
 		}
+		return;
 	}
 
 	bool isInList(int processId, int whichList){
@@ -38,8 +40,8 @@ namespace lists {
 		std::cout << "Processes ready: ";
 		utilities::printList(readyProcessesList);
 
-		std::cout << "Processes incoming: \n";
-		utilities::printIncomingMap(incomingProcessesMap);
+//		std::cout << "Processes incoming: \n";
+//		utilities::printIncomingMap(incomingProcessesMap);
 
 		std::cout << "Processes waiting: ";
 		utilities::printList(waitingProcessesList);
@@ -50,6 +52,7 @@ namespace lists {
 	}
 
 	void swapList(int processId, int from, int to){
+		std::cout << "swapping...\n";
 		switch(from) {
 			case READY: readyProcessesList.remove(processId); break;
 			case WAITING: waitingProcessesList.remove(processId); break;

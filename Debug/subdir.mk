@@ -7,7 +7,6 @@ CPP_SRCS += \
 ../lists.cpp \
 ../main.cpp \
 ../process.cpp \
-../processes.cpp \
 ../processor.cpp \
 ../utilities.cpp 
 
@@ -15,7 +14,6 @@ OBJS += \
 ./lists.o \
 ./main.o \
 ./process.o \
-./processes.o \
 ./processor.o \
 ./utilities.o 
 
@@ -23,7 +21,6 @@ CPP_DEPS += \
 ./lists.d \
 ./main.d \
 ./process.d \
-./processes.d \
 ./processor.d \
 ./utilities.d 
 

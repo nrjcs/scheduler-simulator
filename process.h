@@ -11,8 +11,9 @@
 
 class process {
     public:
-        process();
-        void initialise(int id, int releasetime, int deadline, int executiontime, std::list<int>& dependencies); //construct
+        process(); //construct
+        void initialise(int id, int releasetime, int deadline, int executiontime);
+        void addDependency(int id);
         void addProcessInWhenExecuted(int id);
         bool executeOneStep();
         int getReleaseTime();
@@ -27,7 +28,6 @@ class process {
         int executionTime;
         int executedTime;
         int id;
-        std::list<int> dependencies;
+        std::list<int> dependenciesFrom;
         std::list<int> dependenciesTo;
-        std::list<int> original_dependencies;
 };
