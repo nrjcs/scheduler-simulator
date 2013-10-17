@@ -24,6 +24,16 @@ namespace lists {
 		}
 	}
 
+	bool isInList(int processId, int whichList){
+		std::list<int>::iterator findIter;
+		switch(whichList) {
+			case READY: findIter = std::find(readyProcessesList.begin(), readyProcessesList.end(), processId); break;
+			case WAITING: findIter = std::find(waitingProcessesList.begin(), waitingProcessesList.end(), processId); break;
+		}
+		return *findIter == processId;
+
+	}
+
 	void printAllLists() {
 		std::cout << "Processes ready: ";
 		utilities::printList(readyProcessesList);

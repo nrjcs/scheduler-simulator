@@ -8,6 +8,7 @@
  * Author: Federico Zanetello                           *
  ********************************************************/
 #include "utilities.h"
+#include <algorithm>
 
 namespace lists {
 	extern std::map<int,std::list<int> > incomingProcessesMap; // step number and list of incoming processes
@@ -16,9 +17,8 @@ namespace lists {
 	extern std::list<int> executedJobsList;
 
 	void addToList(int processId,int whichList);
+	bool isInList(int list, int id);
 	void printAllLists();
 	void removeFromReady(int processId);
 	void swapList(int ProcessId, int fromList, int toList);
-
-	bool checkIncomingJobs();
 }

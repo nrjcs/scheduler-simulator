@@ -11,7 +11,6 @@
 
 processor::processor() {
 	process = -1;
-	history = "";
 }
 
 int processor::getProcess(){
@@ -19,13 +18,17 @@ int processor::getProcess(){
 }
 
 int processor::executeStep(){
-	history.append(".");
-	if(process<10)
-		history.append(std::to_string(process));
-	history.append(".");
+	history.push_back(process);
+	printHistory();
 	return process;
 }
 
- void processor::setProcess(int processId){
+void processor::printHistory(){
+	for (std::vector<int>::size_type i = 0; i != history.size(); ++i)
+		std::cout << history[i] << ".";
+	std::cout << '\n';
+}
+
+void processor::setProcess(int processId){
 	 process = processId;
  }

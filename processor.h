@@ -7,15 +7,17 @@
  *                                                      *
  * Author: Federico Zanetello                           *
  ********************************************************/
-#include <string>
+#include <vector>
+#include <iostream>
 
 class processor {
     public:
         processor();
         int executeStep();
         int getProcess();
+        void printHistory();
         void setProcess(int processId);
     private:
         int process;
-        std::string history;
+        std::vector<int> history;
 };

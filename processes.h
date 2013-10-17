@@ -14,7 +14,6 @@ class processes {
     public:
         processes(); //construct
         void add_process(int id, int releasetime, int deadline, int executiontime, std::list<int>& dependencies);
-        void changeStatus(int processId, int status);
         int getReleaseTime(int processId);
         std::list<int> getListDependenciesTo(int processId);
         bool executeOneStep(int processId);

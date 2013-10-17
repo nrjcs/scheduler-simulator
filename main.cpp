@@ -18,17 +18,16 @@ enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
 
 void step();
 bool executeStep();
-//void scheduler();
-//bool processorsInIdle();
+void scheduler();
+std::vector<int> getRunningProcesses();
 
+bool preemptive;
 int clockStep = -1;
 std::vector<processor> processors;
 std::vector<process> processes;
 
 int main(int argc, char** argv){
 	//declaring everything
-
-	bool preemptive;
 	int processorsNumber, processesNumber;
 
 
@@ -61,20 +60,12 @@ int main(int argc, char** argv){
     processes[id].initialise(id,releaseTime,1,1,test3);
     incomingProcessesMap[releaseTime].push_back(id++);
 
-    printAllLists();
+    //printAllLists();
     std::cout << "\n";
 
     step();
 
     return 0;
-//
-//    printAllLists();
-//    std::cout << "\n";
-//    //allProcesses.printProcesses();
-//
-//
-//
-//    return 0;
 };
 
 void wait() {
@@ -82,40 +73,49 @@ void wait() {
 	std::cin.ignore( std::numeric_limits <std::streamsize> ::max(), '\n' );
 }
 
-//
-//bool checkIncomingJobs(){
-//	if(incomingProcesses[stepClock].size() > 0) {
-//		for (std::list<int>::iterator it = incomingProcesses[stepClock].begin(); it != incomingProcesses[stepClock].end(); it++) {
-//			std::cout << "job " << *it << " released \n";
-//			if(allProcesses.release(*it) == READY)
-//				addToList(*it, READY);
-//			else
-//				addToList(*it, WAITING);
-//
-//		}
-//
-//		readyProcesses.sort();
-//
-//		return true;
-//	}
-//	return false;
-//}
-//
-//void scheduler() {
-//	if((!preemptive && ! processorsInIdle()))
-//		return;
-//
-//	if(preemptive)
-//		;
-//	else{
+
+bool checkIncomingJobs(){
+	if(incomingProcessesMap[clockStep].size() > 0) {
+		for (std::list<int>::iterator it = incomingProcessesMap[clockStep].begin(); it != incomingProcessesMap[clockStep].end(); it++) {
+			std::cout << "job " << *it << " released \n";
+			addToList(*it, processes[*it].release());
+		}
+		return true;
+	}
+	return false;
+}
+
+std::vector<int> getRunningProcesses(){
+	std::vector<int> runningProcesses;
+	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
+		runningProcesses[i] = processors[i].getProcess();
+	return runningProcesses;
+}
+
+void scheduler() {
+	if(readyProcessesList.size() == 0) return; //no processes ready, no party
+
+	std::vector<int> runningProcesses = getRunningProcesses();
+
+	if(preemptive)
+		for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
+			;
+	else
+		for(std::vector<processor>::size_type i = 0; (i != processors.size()) && readyProcessesList.size() > 0; ++i) {
+			processRunning = processors[i].getProcess();
+			if(processRunning == -1){
+				processor[i].setProcess
+			}
+
+		//runningProcesses[i] = processors[i].getProcess();
 //		for (std::list<int>::iterator it = runningProcesses.begin(); it != runningProcesses.end(); it++)
 //			if(*it == -1){
 //				swapList(readyProcesses.front(), READY, RUNNING);
 //			}
 //	}
-//
-//}
-//
+
+}
+
 
 void printProcessRunning(){
 	std::cout << "Processes running: \n";
@@ -128,19 +128,20 @@ void step() {
 	callScheduler = executeStep();
 	clockStep++;
 	std::cout << "Clock: " << clockStep << '\n';
-	//callScheduler = callScheduler || checkIncomingJobs();
+	callScheduler = callScheduler || checkIncomingJobs();
 
-//	if(callScheduler)
-//		scheduler();
-	printProcessRunning();
-	printAllLists();
+	if(callScheduler)
+		scheduler();
+	//printProcessRunning();
+	//printAllLists();
 	wait();
 	step();
 }
-//
+
 bool executeStep(){
 	bool somethingEnded = false;
 	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i) {
+		std::cout << "["<<i<<"] :";
 		int processRunning = processors[i].executeStep();
 		if(processRunning  != -1) {
 			bool jobEnded = processes[processRunning].executeOneStep();
@@ -151,9 +152,9 @@ bool executeStep(){
 				addToList(processRunning, EXECUTED);
 				std::list<int> list = processes[processRunning].listDependenciesTo();
 
-//				for (std::list<int>::iterator it2 = list.begin(); it2 != list.end(); it2++)
-//					if(processes[processRunning].removeDependency(*it2))
-//						swapList(*it, WAITING, READY);
+				for (std::list<int>::size_type it2 =0; it2 != list.size(); it2++)
+					if(processes[processRunning].removeDependency(it2) && isInList(processRunning,WAITING))
+						swapList(it2, WAITING, READY);
 
 				somethingEnded = true;
 			}
@@ -161,12 +162,4 @@ bool executeStep(){
 	}
 	return somethingEnded;
 }
-//
-//bool processorsInIdle(){
-//	for (std::list<int>::iterator it = runningProcesses.begin(); it != runningProcesses.end(); it++)
-//		if(*it == -1)
-//			return true;
-//
-//	return false;
-//}
 
