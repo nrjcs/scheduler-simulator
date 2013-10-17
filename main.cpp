@@ -7,17 +7,23 @@
  *                                                      *
  * Author: Federico Zanetello                           *
  ********************************************************/
+
+// to do: deadLock checker
 #include "process.h"
 #include "processor.h"
 #include "lists.h"
 #include <limits>
 #include <vector>
 #include <fstream>
+#include <sstream>
+#include <string>
+
 using namespace lists;
 enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
 
 void step();
 bool executeStep();
+unsigned readFromFile();
 void scheduler();
 
 bool preemptive;
@@ -33,72 +39,64 @@ void printProcessorsHistory() {
 }
 
 int main(int argc, char** argv){
-	//declaring everything
-	unsigned processorsNumber, processesNumber;
-
-
 	//initialising everything
-	std::cout << "Initialising machine... \n";
-	preemptive = false;
-	processorsNumber = 3;
-	processesNumber = 8;
-	processors.assign(processorsNumber, processor());
-	processes.assign(processesNumber, process());
+	unsigned processesNumber = readFromFile();
 
-	std::cout << "Initialising jobs.. \n";
-	//Initializing processes
-    int id = 0;
-    int releaseTime = 0;
-    processes[id].initialise(id,releaseTime,5,3);
-    processes[id].addDependency(3);
-    processes[3].addProcessInWhenExecuted(id);
-    processes[id].addDependency(2);
-    processes[2].addProcessInWhenExecuted(id);
-    incomingProcessesMap[releaseTime].push_back(id);
-
-    id++;
-    processes[id].initialise(id,releaseTime,1,8);
-    incomingProcessesMap[releaseTime].push_back(id);
-
-    id++;
-    releaseTime = 2;
-    processes[id].initialise(id,releaseTime,5,3);
-    incomingProcessesMap[releaseTime].push_back(id);
-
-    id++;
-    releaseTime = 3;
-    processes[id].initialise(id,releaseTime,1,3);
-    processes[id].addDependency(1);
-    processes[1].addProcessInWhenExecuted(id);
-    processes[id].addDependency(2);
-    processes[2].addProcessInWhenExecuted(id);
-    incomingProcessesMap[releaseTime].push_back(id);
-
-    id++;
-    releaseTime = 2;
-    processes[id].initialise(id,releaseTime,1,3);
-    processes[id].addDependency(1);
-    processes[1].addProcessInWhenExecuted(id);
-    incomingProcessesMap[releaseTime].push_back(id);
-
-    id++;
-	releaseTime = 0;
-	processes[id].initialise(id,releaseTime,1,10);
-    incomingProcessesMap[releaseTime].push_back(id);
-
-	id++;
-	releaseTime = 4;
-	processes[id].initialise(id,releaseTime,1,2);
-	processes[id].addDependency(1);
-	processes[1].addProcessInWhenExecuted(id);
-    incomingProcessesMap[releaseTime].push_back(id);
-
-	id++;
-	releaseTime = 6;
-	processes[id].initialise(id,releaseTime,1,9);
-	processes[id].addDependency(4);
-	processes[4].addProcessInWhenExecuted(id);
-    incomingProcessesMap[releaseTime].push_back(id);
+//	return 0;
+//
+//	//Initializing processes
+//    int id = 0;
+//    int releaseTime = 0;
+//    processes[id].initialise(id,releaseTime,5,3);
+//    processes[id].addDependency(3);
+//    processes[3].addProcessInWhenExecuted(id);
+//    processes[id].addDependency(2);
+//    processes[2].addProcessInWhenExecuted(id);
+//    incomingProcessesMap[releaseTime].push_back(id);
+//
+//    id++;
+//    processes[id].initialise(id,releaseTime,1,8);
+//    incomingProcessesMap[releaseTime].push_back(id);
+//
+//    id++;
+//    releaseTime = 2;
+//    processes[id].initialise(id,releaseTime,5,3);
+//    incomingProcessesMap[releaseTime].push_back(id);
+//
+//    id++;
+//    releaseTime = 3;
+//    processes[id].initialise(id,releaseTime,1,3);
+//    processes[id].addDependency(1);
+//    processes[1].addProcessInWhenExecuted(id);
+//    processes[id].addDependency(2);
+//    processes[2].addProcessInWhenExecuted(id);
+//    incomingProcessesMap[releaseTime].push_back(id);
+//
+//    id++;
+//    releaseTime = 2;
+//    processes[id].initialise(id,releaseTime,1,3);
+//    processes[id].addDependency(1);
+//    processes[1].addProcessInWhenExecuted(id);
+//    incomingProcessesMap[releaseTime].push_back(id);
+//
+//    id++;
+//	releaseTime = 0;
+//	processes[id].initialise(id,releaseTime,1,10);
+//    incomingProcessesMap[releaseTime].push_back(id);
+//
+//	id++;
+//	releaseTime = 4;
+//	processes[id].initialise(id,releaseTime,1,2);
+//	processes[id].addDependency(1);
+//	processes[1].addProcessInWhenExecuted(id);
+//    incomingProcessesMap[releaseTime].push_back(id);
+//
+//	id++;
+//	releaseTime = 6;
+//	processes[id].initialise(id,releaseTime,1,9);
+//	processes[id].addDependency(4);
+//	processes[4].addProcessInWhenExecuted(id);
+//    incomingProcessesMap[releaseTime].push_back(id);
 
     std::cout << "Starting Machine!\n";
     while(executedJobsList.size() < processesNumber) {
@@ -127,6 +125,44 @@ bool checkIncomingJobs(){
 		return true;
 	}
 	return false;
+}
+
+void initialiseProcess(int processId,  std::istringstream& iss){
+	int releaseTime, deadline, executionTime, temp;
+	iss >> releaseTime;
+	iss >> deadline;
+	iss >> executionTime;
+
+	processes[processId].initialise(processId,releaseTime, deadline, executionTime);
+	while (iss >> temp) {
+		processes[processId].addDependency(temp);
+		processes[temp].addProcessInWhenExecuted(processId);
+	}
+
+	incomingProcessesMap[releaseTime].push_back(processId);
+}
+
+unsigned readFromFile() {
+	std::cout << "Initialising machine... \n";
+	unsigned processorsNumber, processesNumber;
+	std::ifstream myFile("input");
+
+
+	int temp, processId = -1, lineNumber = -1;
+	std::string line;
+
+	while (std::getline(myFile, line))
+	{
+		std::istringstream iss(line);
+		switch(++lineNumber) {
+			case 0: iss >> temp; preemptive = temp; break;
+			case 1: iss >> processorsNumber; processors.assign(processorsNumber, processor()); break;
+			case 2: iss >> processesNumber; processes.assign(processesNumber, process()); break;
+			default: initialiseProcess(++processId,iss);
+		}
+	}
+	return processesNumber;
+	//std::cout << "preemptive!" << a << '\n';
 }
 
 void scheduler() {
