@@ -12,8 +12,8 @@
 #include "lists.h"
 #include <limits>
 #include <vector>
+#include <fstream>
 using namespace lists;
-//add_process(int id, int releasetime, int deadline, int executiontime, std::list<int>& dependencies); //construct
 enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
 
 void step();
@@ -25,6 +25,13 @@ int clockStep = -1;
 std::vector<processor> processors;
 std::vector<process> processes;
 
+void printProcessorsHistory() {
+	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i) {
+			std::cout << "["<<i<<"]: ";
+			processors[i].printHistory();
+	}
+}
+
 int main(int argc, char** argv){
 	//declaring everything
 	unsigned processorsNumber, processesNumber;
@@ -33,38 +40,73 @@ int main(int argc, char** argv){
 	//initialising everything
 	std::cout << "Initialising machine... \n";
 	preemptive = false;
-	processorsNumber = 1;
-	processesNumber = 4;
+	processorsNumber = 3;
+	processesNumber = 8;
 	processors.assign(processorsNumber, processor());
 	processes.assign(processesNumber, process());
 
 	std::cout << "Initialising jobs.. \n";
 	//Initializing processes
-    int id = 1;
+    int id = 0;
     int releaseTime = 0;
     processes[id].initialise(id,releaseTime,5,3);
     processes[id].addDependency(3);
+    processes[3].addProcessInWhenExecuted(id);
     processes[id].addDependency(2);
+    processes[2].addProcessInWhenExecuted(id);
     incomingProcessesMap[releaseTime].push_back(id);
 
-    id = 2;
-    processes[id].initialise(id,releaseTime,1,1);
+    id++;
+    processes[id].initialise(id,releaseTime,1,8);
     incomingProcessesMap[releaseTime].push_back(id);
 
-    id = 3;
+    id++;
     releaseTime = 2;
     processes[id].initialise(id,releaseTime,5,3);
     incomingProcessesMap[releaseTime].push_back(id);
 
-    id = 4;
+    id++;
     releaseTime = 3;
-    processes[id].initialise(id,releaseTime,1,1);
+    processes[id].initialise(id,releaseTime,1,3);
     processes[id].addDependency(1);
+    processes[1].addProcessInWhenExecuted(id);
     processes[id].addDependency(2);
-    incomingProcessesMap[releaseTime].push_back(id++);
+    processes[2].addProcessInWhenExecuted(id);
+    incomingProcessesMap[releaseTime].push_back(id);
 
-    while(executedJobsList.size() < processesNumber)
+    id++;
+    releaseTime = 2;
+    processes[id].initialise(id,releaseTime,1,3);
+    processes[id].addDependency(1);
+    processes[1].addProcessInWhenExecuted(id);
+    incomingProcessesMap[releaseTime].push_back(id);
+
+    id++;
+	releaseTime = 0;
+	processes[id].initialise(id,releaseTime,1,10);
+    incomingProcessesMap[releaseTime].push_back(id);
+
+	id++;
+	releaseTime = 4;
+	processes[id].initialise(id,releaseTime,1,2);
+	processes[id].addDependency(1);
+	processes[1].addProcessInWhenExecuted(id);
+    incomingProcessesMap[releaseTime].push_back(id);
+
+	id++;
+	releaseTime = 6;
+	processes[id].initialise(id,releaseTime,1,9);
+	processes[id].addDependency(4);
+	processes[4].addProcessInWhenExecuted(id);
+    incomingProcessesMap[releaseTime].push_back(id);
+
+    std::cout << "Starting Machine!\n";
+    while(executedJobsList.size() < processesNumber) {
     	step();
+//    	printProcessorsHistory();
+    }
+
+    printProcessorsHistory();
 
     return 0;
 };
@@ -79,7 +121,7 @@ bool checkIncomingJobs(){
 	if(incomingProcessesMap[clockStep].size() > 0) {
 		for (std::list<int>::iterator it = incomingProcessesMap[clockStep].begin(); it != incomingProcessesMap[clockStep].end(); it++) {
 			int temp = *it;
-			//std::cout << "Job " << temp << " released! \n";
+			std::cout << "Job " << temp << " released! \n";
 			lists::addToList(temp, processes[temp].release());
 		}
 		return true;
@@ -111,7 +153,7 @@ void printProcessRunning(){
 
 void step() {
 	clockStep++;
-	std::cout << "Clock: " << clockStep << '\n';
+	//std::cout << "Clock: " << clockStep << '\n';
 
 	if(checkIncomingJobs())
 		scheduler();
@@ -119,28 +161,33 @@ void step() {
 	if(executeStep()) //returns true if one or more processes end!
 		scheduler();
 
-	printProcessRunning();
-	printAllLists();
-	wait();
+//	printProcessRunning();
+//	printAllLists();
+//	wait();
 
 }
 
 bool executeStep(){
 	bool somethingEnded = false;
 	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i) {
-		std::cout << "["<<i<<"]: ";
 		int processRunning = processors[i].executeStep();
 		if(processRunning  != -1) {
 			if(processes[processRunning].executeOneStep()) { //returns true when the job ends
-				std::cout << "job " << processRunning << " ended!\n";
+				//std::cout << " job " << processRunning << " ended!\n";
 				processors[i].setProcess(-1);
 				addToList(processRunning, EXECUTED);
+
+				//std::cout << "Jobs executed: ";
+				//utilities::printList(executedJobsList);
+
 				std::list<int> listDependenciesTo = processes[processRunning].listDependenciesTo();
 
-				for (std::list<int>::size_type j = 0; j != listDependenciesTo.size(); ++j)
-					if( processes[(listDependenciesTo[j])].removeDependency(processRunning) ) ;
-//						;if(isInList(listDependenciesTo[j],WAITING))
-//							swapList(listDependenciesTo[j], WAITING, READY);
+				for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++) {
+					//std::cout << " removeDependency to "<< *it << "\n";
+					if( processes[*it].removeDependency(processRunning) )
+						if(isInList(*it,WAITING))
+							swapList(*it, WAITING, READY);
+				}
 
 				somethingEnded = true;
 			}

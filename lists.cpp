@@ -20,8 +20,9 @@ namespace lists {
 	void addToList(int processId,int whichList){
 		//std::cout << " adding job process" << processId << " to ";
 		switch(whichList) {
-			case READY: std::cout << "readyList\n"; readyProcessesList.push_back(processId); readyProcessesList.sort(); break; //I want this list always sorted
-			case WAITING: std::cout << "waitingList\n"; waitingProcessesList.push_back(processId); break;
+			case READY: readyProcessesList.push_back(processId); readyProcessesList.sort(); break; // std::cout << "readyList\n"; I want this list always sorted
+			case WAITING: waitingProcessesList.push_back(processId); break; //std::cout << "waitingList\n";
+			case EXECUTED: executedJobsList.push_back(processId); break;
 		}
 		return;
 	}
@@ -52,7 +53,6 @@ namespace lists {
 	}
 
 	void swapList(int processId, int from, int to){
-		std::cout << "swapping...\n";
 		switch(from) {
 			case READY: readyProcessesList.remove(processId); break;
 			case WAITING: waitingProcessesList.remove(processId); break;

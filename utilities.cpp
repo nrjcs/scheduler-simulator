@@ -11,7 +11,7 @@
 
 namespace utilities {
 	void printList(std::list<int>& myList){
-		for (std::list<int>::iterator it = myList.begin(); it != myList.end(); it++)
+		for (std::list<int>::iterator it = myList.begin(); it != myList.end(); ++it)
 			std::cout << *it << " ";
 		std::cout << '\n';
 	}

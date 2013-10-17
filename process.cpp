@@ -17,9 +17,11 @@ process::process() {
 	deadline = -1;
 	executionTime = -1;
 	executedTime = 0;
+	dependenciesFrom.clear();
 }
 
 void process::addDependency(int _id) {
+	//std::cout << "adding " << _id << " to " << id << "\n";
 	dependenciesFrom.push_back(_id);
 }
 
@@ -40,10 +42,12 @@ void process::initialise(int _id, int _releaseTime, int _deadline, int _executio
     releaseTime = _releaseTime;
     deadline = _deadline;
     executionTime = _executionTime;
+    printProcess();
 }
 
-std::list<int> process::listDependenciesFrom() {
-	return dependenciesFrom;
+void process::printDependenciesFrom() {
+	std::cout << "Process " << id << " has these dependencies: ";
+	utilities::printList(dependenciesFrom);
 }
 
 std::list<int> process::listDependenciesTo() {
@@ -51,12 +55,12 @@ std::list<int> process::listDependenciesTo() {
 }
 
 void process::printProcess(){
-    std::cout << "Process id: " << id << '\n';
+    std::cout << "Process id: " << id << "\n release time: " << releaseTime << '\n';
 
-    std::cout << "Dependencies from: ";
+    std::cout << " dependencies from: ";
     utilities::printList(dependenciesFrom);
 
-    std::cout << "Dependencies to: ";
+    std::cout << " dependencies to: ";
     utilities::printList(dependenciesTo);
 }
 
@@ -64,8 +68,11 @@ int process::release() {
 	return dependenciesFrom.empty() ? READY : WAITING;
 }
 
-bool process::removeDependency(int id){
-	dependenciesFrom.remove(id);
-
+bool process::removeDependency(int _id){
+//	std::cout << "Dependencies from: ";
+//	utilities::printList(dependenciesFrom);
+//	std::cout << " removing" << _id << "\n";
+	dependenciesFrom.remove(_id);
+//	std::cout << " removed\n";
 	return dependenciesFrom.empty();
 }

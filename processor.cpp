@@ -19,16 +19,23 @@ int processor::getProcess(){
 
 int processor::executeStep(){
 	history.push_back(process);
-	printHistory();
+//	printHistory();
 	return process;
 }
 
 void processor::printHistory(){
-	for (std::vector<int>::size_type i = 0; i != history.size(); ++i)
-		if(history[i] > 0 && history[i] < 10)
-			std::cout << " 0" << history[i];
-		else
-			std::cout << " " <<  history[i];
+	for (std::vector<int>::size_type i = 0; i != history.size(); ++i) {
+		std::cout << " ";
+
+		if(history[i] < 0) {
+			std::cout << "--";
+			continue;
+		}
+		if(history[i] < 10)
+			std::cout << "0";
+
+		std::cout <<  history[i];
+	}
 	std::cout << '\n';
 }
 

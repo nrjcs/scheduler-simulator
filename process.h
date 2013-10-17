@@ -17,7 +17,7 @@ class process {
         void addProcessInWhenExecuted(int id);
         bool executeOneStep();
         int getReleaseTime();
-        std::list<int> listDependenciesFrom();
+        void printDependenciesFrom();
         std::list<int> listDependenciesTo();
         void printProcess();
         int release();
