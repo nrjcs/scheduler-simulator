@@ -9,6 +9,7 @@
  ********************************************************/
 #include <list>
 #include <map>
+#include <vector>
 #include <iostream>
 
 namespace utilities {

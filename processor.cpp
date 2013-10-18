@@ -10,6 +10,7 @@
 #include "processor.h"
 
 processor::processor() {
+	id = -1;
 	process = -1;
 }
 
@@ -18,23 +19,30 @@ int processor::getProcess(){
 }
 
 int processor::executeStep(){
-	history.push_back(process);
+	timeline.push_back(process);
 //	printHistory();
 	return process;
 }
+void processor::initialise(int _id) {
+	id = _id;
+}
+void processor::printTimeline(){
+	if(id<10)
+		std::cout << " [0" << id << "]:";
+	else
+		std::cout << " [" << id << "]:";
 
-void processor::printHistory(){
-	for (std::vector<int>::size_type i = 0; i != history.size(); ++i) {
+	for (std::vector<int>::size_type i = 0; i != timeline.size(); ++i) {
 		std::cout << " ";
 
-		if(history[i] < 0) {
+		if(timeline[i] < 0) {
 			std::cout << "--";
 			continue;
 		}
-		if(history[i] < 10)
+		if(timeline[i] < 10)
 			std::cout << "0";
 
-		std::cout <<  history[i];
+		std::cout <<  timeline[i];
 	}
 	std::cout << '\n';
 }

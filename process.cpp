@@ -8,15 +8,18 @@
  * Author: Federico Zanetello                           *
  ********************************************************/
 #include "process.h"
+#include <sstream>
 
 enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
 
 process::process() {
-	id = -1;
-	releaseTime = -1;
+	completionTime = -1;
 	deadline = -1;
 	executionTime = -1;
 	executedTime = 0;
+	id = -1;
+	releaseTime = -1;
+	responseTime = -1;
 }
 
 void process::addDependency(int _id) {
@@ -24,16 +27,23 @@ void process::addDependency(int _id) {
 	dependenciesFrom.push_back(_id);
 }
 
-void process::addProcessInWhenExecuted(int _id) {
+void process::alertThisJobWhenDone(int _id) {
 	dependenciesTo.push_back(_id);
 }
 
-bool process::executeOneStep(){
-    return ++executedTime == executionTime;
+bool process::deadlineMet(){
+	return completionTime <= deadline;
 }
 
-int process::getReleaseTime(){
-	return releaseTime;
+bool process::executeOneStep(int executionStep){
+	if(executedTime == 0)
+		responseTime = executionStep;
+
+	if(++executedTime == executionTime) {
+		completionTime = executionStep;
+		return true;
+	}
+	return false;
 }
 
 void process::initialise(int _id, int _releaseTime, int _deadline, int _executionTime){
@@ -52,14 +62,40 @@ std::list<int> process::listDependenciesTo() {
 	return dependenciesTo;
 }
 
-void process::printProcess(){
-    std::cout << "Process id: " << id << "\n release time: " << releaseTime << '\n';
+void process::printTimeline(){
+	// printing process id
+	if(id < 10)
+		std::cout << "<0" << id << ">: ";
+	else
+		std::cout << "<" << id << ">: ";
 
-    std::cout << " dependencies from: ";
-    utilities::printList(dependenciesFrom);
+	// printing release and deadline timeline
+	for (int i = 0; i <= deadline; i++){
+		if(i == releaseTime)
+			std::cout << "^  ";
+		else if(i == deadline)
+			std::cout << "  ^";
+		else
+			std::cout << "   ";
+	}
 
-    std::cout << " dependencies to: ";
-    utilities::printList(dependenciesTo);
+	std::cout << '\n';
+
+	// printing whether the deadline was met
+	if(deadlineMet())
+		std::cout << " OK   ";
+	else
+		std::cout << "FAIL  ";
+	// printing response and completion timeline
+	for (int i = 0; i <= completionTime; i++){
+		if(i == responseTime)
+			std::cout << " * ";
+		else if(i == completionTime)
+			std::cout << "  *";
+		else
+			std::cout << "   ";
+	}
+	std::cout << '\n';
 }
 
 int process::release() {
@@ -67,10 +103,6 @@ int process::release() {
 }
 
 bool process::removeDependency(int _id){
-//	std::cout << "Dependencies from: ";
-//	utilities::printList(dependenciesFrom);
-//	std::cout << " removing" << _id << "\n";
 	dependenciesFrom.remove(_id);
-//	std::cout << " removed\n";
 	return dependenciesFrom.empty();
 }

@@ -23,6 +23,7 @@ enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
 
 void step();
 bool executeStep();
+void printMachineTimeline();
 unsigned readFromFile();
 void scheduler();
 
@@ -31,12 +32,6 @@ int clockStep = -1;
 std::vector<processor> processors;
 std::vector<process> processes;
 
-void printProcessorsHistory() {
-	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i) {
-			std::cout << "["<<i<<"]: ";
-			processors[i].printHistory();
-	}
-}
 
 int main(int argc, char** argv){
 	//initialising everything
@@ -46,7 +41,7 @@ int main(int argc, char** argv){
     while(executedJobsList.size() < jobsNumber)
     	step();
 
-    printProcessorsHistory();
+    printMachineTimeline();
 
     return 0;
 };
@@ -78,7 +73,7 @@ void initialiseProcess(int processId,  std::istringstream& iss){
 	processes[processId].initialise(processId,releaseTime, deadline, executionTime);
 	while (iss >> temp) {
 		processes[processId].addDependency(temp);
-		processes[temp].addProcessInWhenExecuted(processId);
+		processes[temp].alertThisJobWhenDone(processId);
 	}
 
 	incomingProcessesMap[releaseTime].push_back(processId);
@@ -89,22 +84,30 @@ unsigned readFromFile() {
 	unsigned processorsNumber, processesNumber;
 	std::ifstream myFile("input");
 
-
-	int temp, processId = -1, lineNumber = -1;
+	int processId = -1, lineNumber = -1;
 	std::string line;
 
 	while (std::getline(myFile, line))
 	{
 		std::istringstream iss(line);
 		switch(++lineNumber) {
-			case 0: iss >> temp; preemptive = temp; break;
-			case 1: iss >> processorsNumber; processors.assign(processorsNumber, processor()); break;
-			case 2: iss >> processesNumber; processes.assign(processesNumber, process()); break;
+			case 0:
+				iss >> preemptive;
+				break;
+			case 1:
+				iss >> processorsNumber;
+				processors.assign(processorsNumber, processor());
+				for(unsigned i = 0; i < processorsNumber; i++)
+					processors[i].initialise(i);
+				break;
+			case 2:
+				iss >> processesNumber;
+				processes.assign(processesNumber, process());
+				break;
 			default: initialiseProcess(++processId,iss);
 		}
 	}
 	return processesNumber;
-	//std::cout << "preemptive!" << a << '\n';
 }
 
 void scheduler() {
@@ -129,6 +132,17 @@ void printProcessRunning(){
 		std::cout << "processor " << i << " is running: " << processors[i].getProcess() << '\n';
 }
 
+void printMachineTimeline() {
+	std::cout << "Processors [ ] and jobs < > timeline: \n";
+	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
+		processors[i].printTimeline();
+
+	std::cout << "\n";
+
+	for(std::vector<process>::size_type i = 0; i != processes.size(); ++i)
+		processes[i].printTimeline();
+}
+
 void step() {
 	clockStep++;
 	//std::cout << "Clock: " << clockStep << '\n';
@@ -150,7 +164,7 @@ bool executeStep(){
 	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i) {
 		int processRunning = processors[i].executeStep();
 		if(processRunning  != -1) {
-			if(processes[processRunning].executeOneStep()) { //returns true when the job ends
+			if(processes[processRunning].executeOneStep(clockStep)) { //returns true when the job ends
 				//std::cout << " job " << processRunning << " ended!\n";
 				processors[i].setProcess(-1);
 				addToList(processRunning, EXECUTED);
