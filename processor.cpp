@@ -20,11 +20,11 @@ int processor::getProcess(){
 
 int processor::executeStep(){
 	timeline.push_back(process);
-//	printHistory();
 	return process;
 }
 void processor::initialise(int _id) {
 	id = _id;
+	process = -id;
 }
 void processor::printTimeline(){
 	if(id<10)
@@ -42,11 +42,14 @@ void processor::printTimeline(){
 		if(timeline[i] < 10)
 			std::cout << "0";
 
-		std::cout <<  timeline[i];
+		std::cout <<  timeline[i]+1;
 	}
 	std::cout << '\n';
 }
 
 void processor::setProcess(int processId){
-	 process = processId;
+	if(processId < 0)
+		process = -id;
+	else
+		process = processId;
  }

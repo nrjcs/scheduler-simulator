@@ -32,7 +32,6 @@ int clockStep = -1;
 std::vector<processor> processors;
 std::vector<process> processes;
 
-
 int main(int argc, char** argv){
 	//initialising everything
 	unsigned jobsNumber = readFromFile();
@@ -51,12 +50,18 @@ void wait() {
 	std::cin.ignore( std::numeric_limits <std::streamsize> ::max(), '\n' );
 }
 
+std::map<int,int> getProcessorsOrderedByPriority() {
+	std::map<int,int> processorsOrderedByPriority;
+
+	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
+		processorsOrderedByPriority[processors[i].getProcess()] = i;
+	return processorsOrderedByPriority;
+}
 
 bool checkIncomingJobs(){
 	if(incomingProcessesMap[clockStep].size() > 0) {
 		for (std::list<int>::iterator it = incomingProcessesMap[clockStep].begin(); it != incomingProcessesMap[clockStep].end(); it++) {
 			int temp = *it;
-			std::cout << "Job " << temp << " released! \n";
 			lists::addToList(temp, processes[temp].release());
 		}
 		return true;
@@ -98,7 +103,7 @@ unsigned readFromFile() {
 				iss >> processorsNumber;
 				processors.assign(processorsNumber, processor());
 				for(unsigned i = 0; i < processorsNumber; i++)
-					processors[i].initialise(i);
+					processors[i].initialise(i+1);
 				break;
 			case 2:
 				iss >> processesNumber;
@@ -113,11 +118,15 @@ unsigned readFromFile() {
 void scheduler() {
 	if(readyProcessesList.empty()) return; //no processes ready, no party
 
-	if(preemptive)
+	if(preemptive) {
 		std::cout << "preemptive!\n";
+	}
 	else {
+		std::map<int,int> myMap = getProcessorsOrderedByPriority();
+		utilities::printIntIntMap(myMap);
+
 		for(std::vector<processor>::size_type i = 0; (i != processors.size()) && !readyProcessesList.empty(); ++i) {
-			if(processors[i].getProcess() == -1){
+			if(processors[i].getProcess() < 0){
 				processors[i].setProcess(readyProcessesList.front());
 				readyProcessesList.pop_front();
 			}
@@ -125,18 +134,11 @@ void scheduler() {
 	}
 }
 
-
-void printProcessRunning(){
-	std::cout << "Processes running: \n";
-	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
-		std::cout << "processor " << i << " is running: " << processors[i].getProcess() << '\n';
-}
-
 void printMachineTimeline() {
-	std::cout << "Machine timeline \n\n";
-	std::cout << " ######## [] indicates processors, <> indicates jobs \n";
-	std::cout << " #LEGEND# ^ indicates the release time and the deadline \n";
-	std::cout << " ######## * indicates the response and completion time \n\n";
+	std::cout << 	"\nMachine timeline \n\n"
+				 	" ######## [] indicates processors, <> indicates jobs \n"
+					" #LEGEND# ^ indicates the release time and the deadline \n"
+					" ######## * indicates the response and completion time \n\n";
 
 	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
 		processors[i].printTimeline();

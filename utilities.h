@@ -13,6 +13,8 @@
 #include <iostream>
 
 namespace utilities {
-	void printList(std::list<int>& myList);
 	void printIncomingMap(std::map<int,std::list<int> > myMap);
+	void printIntIntMap(std::map<int,int>& myMap);
+	void printList(std::list<int>& myList);
+	void printVector(std::vector<int>& myVect);
 }
