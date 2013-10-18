@@ -20,6 +20,7 @@ int processor::getProcess(){
 
 int processor::executeStep(){
 	timeline.push_back(process);
+//	printTimeline();
 	return process;
 }
 void processor::initialise(int _id) {

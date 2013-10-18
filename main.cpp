@@ -27,7 +27,7 @@ void printMachineTimeline();
 unsigned readFromFile();
 void scheduler();
 
-bool preemptive;
+bool preemptive = true;
 int clockStep = -1;
 std::vector<processor> processors;
 std::vector<process> processes;
@@ -55,6 +55,7 @@ std::map<int,int> getProcessorsOrderedByPriority() {
 
 	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
 		processorsOrderedByPriority[processors[i].getProcess()] = i;
+
 	return processorsOrderedByPriority;
 }
 
@@ -97,7 +98,10 @@ unsigned readFromFile() {
 		std::istringstream iss(line);
 		switch(++lineNumber) {
 			case 0:
-				iss >> preemptive;
+				int temp;
+				iss >> temp;
+				if(temp == 0)
+					preemptive = false;
 				break;
 			case 1:
 				iss >> processorsNumber;
@@ -117,14 +121,17 @@ unsigned readFromFile() {
 
 void scheduler() {
 	if(readyProcessesList.empty()) return; //no processes ready, no party
-
 	if(preemptive) {
-		std::cout << "preemptive!\n";
+		std::map<int,int> myMap = getProcessorsOrderedByPriority();
+		for (std::map<int,int>::iterator it = myMap.begin(); it != myMap.end() && !readyProcessesList.empty(); it++)
+			if(it->first < 0 || it->first > readyProcessesList.front()) {
+				if(it->first >= 0)
+					addToList(it->first, READY);
+				processors[it->second].setProcess(readyProcessesList.front());
+				readyProcessesList.pop_front();
+			}
 	}
 	else {
-		std::map<int,int> myMap = getProcessorsOrderedByPriority();
-		utilities::printIntIntMap(myMap);
-
 		for(std::vector<processor>::size_type i = 0; (i != processors.size()) && !readyProcessesList.empty(); ++i) {
 			if(processors[i].getProcess() < 0){
 				processors[i].setProcess(readyProcessesList.front());
@@ -154,18 +161,12 @@ void printMachineTimeline() {
 
 void step() {
 	clockStep++;
-	//std::cout << "Clock: " << clockStep << '\n';
 
 	if(checkIncomingJobs())
 		scheduler();
 
 	if(executeStep()) //returns true if one or more processes end!
 		scheduler();
-
-//	printProcessRunning();
-//	printAllLists();
-//	wait();
-
 }
 
 bool executeStep(){
