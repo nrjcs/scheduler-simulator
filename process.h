@@ -19,7 +19,8 @@ class process {
         bool executeOneStep(int executionStep);											//tells the job to do one execution step, then returns true if the job is now completed
         void printDependenciesFrom();													//[TO DELETE] print the jobs dependencies
         std::list<int> listDependenciesTo();											//returns the list of jobs that are awaiting his execution
-        void printTimeline();															//prints the job's timeline
+        void plotTimeline();															//plots the job's timeline
+        void printStats();																//prints the job's parameters
         int release();																	//simulate the job release, it returns whether it is ready or it must wait some other jobs prior execution
         bool removeDependency(int id);													//remove the input job from his dependencies, returns whether now it is ready or must wait some other jobs prior execution
     private:

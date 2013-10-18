@@ -28,9 +28,9 @@ void processor::initialise(int _id) {
 }
 void processor::printTimeline(){
 	if(id<10)
-		std::cout << " [0" << id << "]:";
+		std::cout << " [0" << id << "]: ";
 	else
-		std::cout << " [" << id << "]:";
+		std::cout << " [" << id << "]: ";
 
 	for (std::vector<int>::size_type i = 0; i != timeline.size(); ++i) {
 		std::cout << " ";

@@ -8,7 +8,7 @@
  * Author: Federico Zanetello                           *
  ********************************************************/
 
-// to do: deadLock checker
+// to do: deadLock checker, check if deadline can be respected (if job is 'feasible')
 #include "process.h"
 #include "processor.h"
 #include "lists.h"
@@ -133,14 +133,21 @@ void printProcessRunning(){
 }
 
 void printMachineTimeline() {
-	std::cout << "Processors [ ] and jobs < > timeline: \n";
+	std::cout << "Machine timeline \n\n";
+	std::cout << " ######## [] indicates processors, <> indicates jobs \n";
+	std::cout << " #LEGEND# ^ indicates the release time and the deadline \n";
+	std::cout << " ######## * indicates the response and completion time \n\n";
+
 	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
 		processors[i].printTimeline();
 
-	std::cout << "\n";
-
 	for(std::vector<process>::size_type i = 0; i != processes.size(); ++i)
-		processes[i].printTimeline();
+		processes[i].plotTimeline();
+
+	std::cout << "\n";
+	wait();
+	for(std::vector<process>::size_type i = 0; i != processes.size(); ++i)
+		processes[i].printStats();
 }
 
 void step() {

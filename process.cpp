@@ -32,7 +32,7 @@ void process::alertThisJobWhenDone(int _id) {
 }
 
 bool process::deadlineMet(){
-	return completionTime <= deadline;
+	return completionTime < deadline;
 }
 
 bool process::executeOneStep(int executionStep){
@@ -62,39 +62,52 @@ std::list<int> process::listDependenciesTo() {
 	return dependenciesTo;
 }
 
-void process::printTimeline(){
+int max(int a, int b) {
+	if(a>=b)
+		return a;
+	return b;
+}
+
+void process::plotTimeline(){
 	// printing process id
 	if(id < 10)
-		std::cout << "<0" << id << ">: ";
+		std::cout << " <0" << id << ">: ";
 	else
-		std::cout << "<" << id << ">: ";
+		std::cout << " <" << id << ">: ";
 
-	// printing release and deadline timeline
-	for (int i = 0; i <= deadline; i++){
-		if(i == releaseTime)
-			std::cout << "^  ";
-		else if(i == deadline)
-			std::cout << "  ^";
+	// plotting timeline
+	for (int i = 0; i <= max(deadline,completionTime); i++){
+		if(i == releaseTime || i == deadline)
+			std::cout << "^";
 		else
-			std::cout << "   ";
-	}
+			std::cout << " ";
 
-	std::cout << '\n';
-
-	// printing whether the deadline was met
-	if(deadlineMet())
-		std::cout << " OK   ";
-	else
-		std::cout << "FAIL  ";
-	// printing response and completion timeline
-	for (int i = 0; i <= completionTime; i++){
 		if(i == responseTime)
-			std::cout << " * ";
-		else if(i == completionTime)
-			std::cout << "  *";
+			std::cout << "*";
 		else
-			std::cout << "   ";
+			std::cout << " ";
+
+		if(i == completionTime)
+			std::cout << "*";
+		else
+			std::cout << " ";
 	}
+	std::cout << '\n';
+}
+
+void process::printStats() {
+	std::cout << "Job " << id << ":\n";
+	std::cout << " execution time: " << executionTime << '\n';
+	std::cout << " release time: " << releaseTime << '\n';
+	std::cout << " deadline: before " << deadline << '\n';
+	std::cout << " response time: " << responseTime << '\n';
+	std::cout << " completion time: " << completionTime << '\n';
+
+	if(deadlineMet())
+		std::cout << " deadline met: YES\n";
+	else
+		std::cout << " deadline met: NO\n";
+
 	std::cout << '\n';
 }
 
