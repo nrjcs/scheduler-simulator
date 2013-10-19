@@ -28,10 +28,7 @@ void processor::initialise(int _id) {
 	process = -id;
 }
 void processor::printTimeline(){
-	if(id<10)
-		std::cout << " [0" << id << "]: ";
-	else
-		std::cout << " [" << id << "]: ";
+	std::cout << " [" << std::setw(2) << std::setfill('0') << id << "]: ";
 
 	for (std::vector<int>::size_type i = 0; i != timeline.size(); ++i) {
 		std::cout << " ";
@@ -40,10 +37,7 @@ void processor::printTimeline(){
 			std::cout << "--";
 			continue;
 		}
-		if(timeline[i] < 10)
-			std::cout << "0";
-
-		std::cout <<  timeline[i]+1;
+		std::cout << std::setw(2) << std::setfill('0') << timeline[i]+1;
 	}
 	std::cout << '\n';
 }

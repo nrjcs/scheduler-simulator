@@ -9,7 +9,7 @@
  ********************************************************/
 
 // to do: deadLock checker, check if deadline can be respected (if job is 'feasible')
-#include "process.h"
+#include "job.h"
 #include "processor.h"
 #include "lists.h"
 #include <limits>
@@ -30,7 +30,7 @@ void scheduler();
 bool preemptive = true;
 int clockStep = -1;
 std::vector<processor> processors;
-std::vector<process> processes;
+std::vector<job> jobs;
 
 int main(int argc, char** argv){
 	//initialising everything
@@ -63,26 +63,26 @@ bool checkIncomingJobs(){
 	if(incomingProcessesMap[clockStep].size() > 0) {
 		for (std::list<int>::iterator it = incomingProcessesMap[clockStep].begin(); it != incomingProcessesMap[clockStep].end(); it++) {
 			int temp = *it;
-			lists::addToList(temp, processes[temp].release());
+			lists::addToList(temp, jobs[temp].release());
 		}
 		return true;
 	}
 	return false;
 }
 
-void initialiseProcess(int processId,  std::istringstream& iss){
+void initialiseProcess(int jobId,  std::istringstream& iss){
 	int releaseTime, deadline, executionTime, temp;
 	iss >> releaseTime;
 	iss >> deadline;
 	iss >> executionTime;
 
-	processes[processId].initialise(processId,releaseTime, deadline, executionTime);
+	jobs[jobId].initialise(jobId,releaseTime, deadline, executionTime);
 	while (iss >> temp) {
-		processes[processId].addDependency(temp);
-		processes[temp].alertThisJobWhenDone(processId);
+		jobs[jobId].addDependency(temp);
+		jobs[temp].alertThisJobWhenDone(jobId);
 	}
 
-	incomingProcessesMap[releaseTime].push_back(processId);
+	incomingProcessesMap[releaseTime].push_back(jobId);
 }
 
 unsigned readFromFile() {
@@ -111,7 +111,7 @@ unsigned readFromFile() {
 				break;
 			case 2:
 				iss >> processesNumber;
-				processes.assign(processesNumber, process());
+				jobs.assign(processesNumber, job());
 				break;
 			default: initialiseProcess(++processId,iss);
 		}
@@ -147,16 +147,26 @@ void printMachineTimeline() {
 					" #LEGEND# ^ indicates the release time and the deadline \n"
 					" ######## * indicates the response and completion time \n\n";
 
+	std::cout << " TIME  ";
+	for(int i=0; i<= clockStep; i++)
+		std::cout << std::setw(2) << std::setfill('0') << i << " ";
+
+	std::cout << '\n' << "      ";
+
+	for(int i=0; i<= clockStep; i++)
+		std::cout << " | ";
+	std::cout << "\n";
+
 	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
 		processors[i].printTimeline();
 
-	for(std::vector<process>::size_type i = 0; i != processes.size(); ++i)
-		processes[i].plotTimeline();
+	for(std::vector<job>::size_type i = 0; i != jobs.size(); ++i)
+		jobs[i].plotTimeline();
 
-	std::cout << "\n";
+//	return;
 	wait();
-	for(std::vector<process>::size_type i = 0; i != processes.size(); ++i)
-		processes[i].printStats();
+	for(std::vector<job>::size_type i = 0; i != jobs.size(); ++i)
+		jobs[i].printStats();
 }
 
 void step() {
@@ -174,7 +184,7 @@ bool executeStep(){
 	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i) {
 		int processRunning = processors[i].executeStep();
 		if(processRunning  != -1) {
-			if(processes[processRunning].executeOneStep(clockStep)) { //returns true when the job ends
+			if(jobs[processRunning].executeOneStep(clockStep)) { //returns true when the job ends
 				//std::cout << " job " << processRunning << " ended!\n";
 				processors[i].setProcess(-1);
 				addToList(processRunning, EXECUTED);
@@ -182,11 +192,11 @@ bool executeStep(){
 				//std::cout << "Jobs executed: ";
 				//utilities::printList(executedJobsList);
 
-				std::list<int> listDependenciesTo = processes[processRunning].listDependenciesTo();
+				std::list<int> listDependenciesTo = jobs[processRunning].listDependenciesTo();
 
 				for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++) {
 					//std::cout << " removeDependency to "<< *it << "\n";
-					if( processes[*it].removeDependency(processRunning) )
+					if( jobs[*it].removeDependency(processRunning) )
 						if(isInList(*it,WAITING))
 							swapList(*it, WAITING, READY);
 				}

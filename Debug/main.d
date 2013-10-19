@@ -1,6 +1,6 @@
-main.d: ../main.cpp ../process.h ../utilities.h ../processor.h ../lists.h
+main.d: ../main.cpp ../job.h ../utilities.h ../processor.h ../lists.h
 
-../process.h:
+../job.h:
 
 ../utilities.h:
 

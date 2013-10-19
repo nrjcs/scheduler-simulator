@@ -4,23 +4,23 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../job.cpp \
 ../lists.cpp \
 ../main.cpp \
-../process.cpp \
 ../processor.cpp \
 ../utilities.cpp 
 
 OBJS += \
+./job.o \
 ./lists.o \
 ./main.o \
-./process.o \
 ./processor.o \
 ./utilities.o 
 
 CPP_DEPS += \
+./job.d \
 ./lists.d \
 ./main.d \
-./process.d \
 ./processor.d \
 ./utilities.d 
 

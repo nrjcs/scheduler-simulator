@@ -1,5 +1,5 @@
 /********************************************************
- * process.h                                            *
+ * job.h                                                *
  *                                                      *
  * Progetto Tipo 1 Sistemi in tempo Reale               *
  * Anno 2013/14                                         *
@@ -9,9 +9,9 @@
  ********************************************************/
 #include "utilities.h"
 
-class process {
+class job {
     public:
-        process(); 																		//construct
+		job(); 																		//construct
         void initialise(int _id, int _releaseTime, int _deadline, int _executionTime);	//set essential parameters
         void addDependency(int id);														//add dependency of another job
         void alertThisJobWhenDone(int id);												//add this job to his dependenciesTo

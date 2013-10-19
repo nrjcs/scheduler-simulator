@@ -30,7 +30,6 @@ namespace utilities {
 		std::cout << '\n';
 	}
 
-
 	void printVector(std::vector<int>& myVec) {
 		for(std::vector<int>::size_type i = 0; i != myVec.size(); ++i)
 			std::cout << myVec[i] << " ";

@@ -1,5 +1,5 @@
 /********************************************************
- * process.cpp                                          *
+ * job.cpp                                              *
  *                                                      *
  * Progetto Tipo 1 Sistemi in tempo Reale               *
  * Anno 2013/14                                         *
@@ -7,12 +7,12 @@
  *                                                      *
  * Author: Federico Zanetello                           *
  ********************************************************/
-#include "process.h"
+#include "job.h"
 #include <sstream>
 
 enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
 
-process::process() {
+job::job() {
 	completionTime = -1;
 	deadline = -1;
 	executionTime = -1;
@@ -22,20 +22,19 @@ process::process() {
 	responseTime = -1;
 }
 
-void process::addDependency(int _id) {
-	//std::cout << "adding " << _id << " to " << id << "\n";
+void job::addDependency(int _id) {
 	dependenciesFrom.push_back(_id);
 }
 
-void process::alertThisJobWhenDone(int _id) {
+void job::alertThisJobWhenDone(int _id) {
 	dependenciesTo.push_back(_id);
 }
 
-bool process::deadlineMet(){
+bool job::deadlineMet(){
 	return completionTime < deadline;
 }
 
-bool process::executeOneStep(int executionStep){
+bool job::executeOneStep(int executionStep){
 	if(executedTime == 0)
 		responseTime = executionStep;
 
@@ -46,19 +45,19 @@ bool process::executeOneStep(int executionStep){
 	return false;
 }
 
-void process::initialise(int _id, int _releaseTime, int _deadline, int _executionTime){
+void job::initialise(int _id, int _releaseTime, int _deadline, int _executionTime){
     id = _id;
     releaseTime = _releaseTime;
     deadline = _deadline;
     executionTime = _executionTime;
 }
 
-void process::printDependenciesFrom() {
+void job::printDependenciesFrom() {
 	std::cout << "Process " << id << " has these dependencies: ";
 	utilities::printList(dependenciesFrom);
 }
 
-std::list<int> process::listDependenciesTo() {
+std::list<int> job::listDependenciesTo() {
 	return dependenciesTo;
 }
 
@@ -68,12 +67,9 @@ int max(int a, int b) {
 	return b;
 }
 
-void process::plotTimeline(){
+void job::plotTimeline(){
 	// printing process id
-	if(id < 10)
-		std::cout << " <0" << id << ">: ";
-	else
-		std::cout << " <" << id << ">: ";
+	std::cout << " <" << std::setw(2) << std::setfill('0') << id << ">: ";
 
 	// plotting timeline
 	for (int i = 0; i <= max(deadline,completionTime); i++){
@@ -95,13 +91,13 @@ void process::plotTimeline(){
 	std::cout << '\n';
 }
 
-void process::printStats() {
+void job::printStats() {
 	std::cout << "Job " << id << ":\n";
-	std::cout << " execution time: " << executionTime << '\n';
-	std::cout << " release time: " << releaseTime << '\n';
-	std::cout << " deadline: before " << deadline << '\n';
-	std::cout << " response time: " << responseTime << '\n';
-	std::cout << " completion time: " << completionTime << '\n';
+	std::cout << 	" execution time: " << executionTime << "\t"
+					 "release time: " << releaseTime << "\t"
+					 "deadline: before " << deadline << "\t"
+					 "response time: " << responseTime << "\t"
+					 "completion time: " << completionTime << '\n';
 
 	if(deadlineMet())
 		std::cout << " deadline met: YES\n";
@@ -111,11 +107,11 @@ void process::printStats() {
 	std::cout << '\n';
 }
 
-int process::release() {
+int job::release() {
 	return dependenciesFrom.empty() ? READY : WAITING;
 }
 
-bool process::removeDependency(int _id){
+bool job::removeDependency(int _id){
 	dependenciesFrom.remove(_id);
 	return dependenciesFrom.empty();
 }

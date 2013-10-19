@@ -7,8 +7,7 @@
  *                                                      *
  * Author: Federico Zanetello                           *
  ********************************************************/
-#include <vector>
-#include <iostream>
+#include "utilities.h"
 
 class processor {
     public:
