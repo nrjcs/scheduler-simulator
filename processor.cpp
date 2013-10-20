@@ -23,8 +23,8 @@ int processor::executeStep(){
 	timeline.push_back(job);
 	return job;
 }
-void processor::initialise(int _id) {
-	id = _id;
+void processor::initialise(int procId) {
+	id = procId;
 	job = -id;
 }
 void processor::printTimeline(){
@@ -37,7 +37,7 @@ void processor::printTimeline(){
 			std::cout << "--";
 			continue;
 		}
-		std::cout << std::setw(2) << std::setfill('0') << timeline[i]+1;
+		std::cout << std::setw(2) << std::setfill('0') << timeline[i];
 	}
 	std::cout << '\n';
 }

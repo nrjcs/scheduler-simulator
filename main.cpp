@@ -216,14 +216,14 @@ void scheduler() {
 
 	if(preemptive) { //if the system is preemptive
 		std::map<int,int> myMap = getProcessorsOrderedByJobPriority();
-		for (std::map<int,int>::iterator it = myMap.begin(); it != myMap.end() && !readyJobsList.empty(); it++)
+		for (std::map<int,int>::iterator it = myMap.begin(); it != myMap.end() && !readyJobsList.empty(); it++){
 			if(it->first < 0 || it->first > readyJobsList.front()) {
 				if(it->first >= 0)
 					addToList(it->first, READY);
 				processors[it->second].setJob(readyJobsList.front());
 				readyJobsList.pop_front();
 			}
-			else break; //this for cycle goes on only until there are jobs on the ready queue that have more priority than the executing ones
+		}
 	}
 	else { //if the system ain't preemptive
 		for(std::vector<processor>::size_type i = 0; (i != processors.size()) && !readyJobsList.empty(); ++i) {
