@@ -34,5 +34,4 @@ class job {
         int responseTime;																//tells you when the jobs got executed the first time
         std::list<int> dependenciesFrom;												//defined on initialization, tells you which jobs our job must wait prior execution
         std::list<int> dependenciesTo;													//when executed, the job alert these jobs that his execution is complete
-        std::list<int> timeline;
 };

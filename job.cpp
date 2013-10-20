@@ -35,10 +35,8 @@ bool job::deadlineMet(){
 }
 
 bool job::executeOneStep(int executionStep){
-	if(executedTime == 0) {
-//		timeline.push_back (5);
+	if(executedTime == 0)
 		responseTime = executionStep;
-	}
 
 	if(++executedTime == executionTime) {
 		completionTime = executionStep;

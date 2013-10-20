@@ -38,9 +38,12 @@ int main(int argc, char** argv){
 	//initialising everything
 	unsigned jobsNumber = readFromFile();
 
-    std::cout << "Starting Machine!\n";
+    std::cout << "Starting machine...";
+
     while(executedJobsList.size() < jobsNumber)
     	step();
+
+    std::cout << "...all done!\n\n";
 
     printMachineTimeline();
 
@@ -79,7 +82,7 @@ void initialiseProcess(int jobId,  std::istringstream& iss){
 	iss >> executionTime;
 
 	jobs[jobId].initialise(jobId,releaseTime, deadline, executionTime);
-	if((!bestEffort) || (!jobs[jobId].isFeasible())){
+	if((!bestEffort) && (!jobs[jobId].isFeasible())){
 		removeDependencies(jobId);
 		addToList(jobId, EXECUTED);
 	}
@@ -95,7 +98,7 @@ void initialiseProcess(int jobId,  std::istringstream& iss){
 }
 
 unsigned readFromFile() {
-	std::cout << "Initialising machine... \n";
+	std::cout << "Initialising machine...\n\nMachine statistics\n";
 	unsigned processorsNumber, processesNumber;
 	std::ifstream myFile("input");
 
@@ -109,22 +112,33 @@ unsigned readFromFile() {
 		switch(++lineNumber) {
 			case 0:
 				iss >> temp;
-				if(temp == 0)
+				if(temp == 0){
 					preemptive = false;
+					std::cout << " -Non-preemptive;\n";
+				}
+				else
+					std::cout << " -Preemptive;\n";
+
 				break;
 			case 1:
 				iss >> temp;
-				if(temp == 0)
+				if(temp == 0){
 					bestEffort = false;
+					std::cout << " -Non best effort (doesn't execute unfeasible jobs);\n";
+				}
+				else
+					std::cout << " -Best effort (executes unfeasible jobs);\n";
 				break;
 			case 2:
 				iss >> processorsNumber;
+				std::cout << " -Processors: " << processorsNumber << ";\n";
 				processors.assign(processorsNumber, processor());
 				for(unsigned i = 0; i < processorsNumber; i++)
 					processors[i].initialise(i+1);
 				break;
 			case 3:
 				iss >> processesNumber;
+				std::cout << " -Jobs: " << processesNumber << ";\n\n";
 				jobs.assign(processesNumber, job());
 				break;
 			default: initialiseProcess(++processId,iss);
@@ -157,7 +171,7 @@ void scheduler() {
 }
 
 void printMachineTimeline() {
-	std::cout << 	"\nMachine timeline \n\n"
+	std::cout << 	"Machine timeline \n\n"
 				 	" ######## [] indicates processors, <> indicates jobs \n"
 					" #LEGEND# $ indicates the release time and the deadline \n"
 					" ######## * indicates the response and completion time \n\n";
@@ -217,11 +231,8 @@ bool executeStep(){
 void removeDependencies(int processId) {
 	std::list<int> listDependenciesTo = jobs[processId].listDependenciesTo();
 
-	for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++) {
-		//std::cout << " removeDependency to "<< *it << "\n";
+	for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++)
 		if( jobs[*it].removeDependency(processId) )
 			if(isInList(*it,WAITING))
 				swapList(*it, WAITING, READY);
-	}
-
 }
