@@ -116,9 +116,10 @@ void job::printStats() {
 	else
 		std::cout <<"NOT EXECUTED\n";
 
-
-	std::cout << " ######### Dependencies: ";
-	utilities::printList(dependenciesFromCopy);
+	if(dependenciesFromCopy.size() > 0) {
+		std::cout << " ######### Dependencies: ";
+		utilities::printList(dependenciesFromCopy);
+	}
 
 	std::cout << "\n";
 }

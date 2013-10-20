@@ -50,6 +50,7 @@ int main(int argc, char** argv){
     std::cout << "...all done!\n\n";
 
     //print report
+    std::cout << "################################################ REPORT ################################################\n\n";
     printMachineTimeline();
 
     return 0;
@@ -100,9 +101,9 @@ std::map<int,int> getProcessorsOrderedByJobId() {
 
 void printMachineTimeline() {
 	std::cout << 	"Machine timeline \n\n"
-				 	" ########## [] indicates processors, <> indicates jobs \n"
-					" # LEGEND # ^ indicates the release time and the deadline \n"
-					" ########## * indicates the response and completion time \n\n";
+				 	"\t\t##########\t\t[] indicates processors, <> indicates jobs \n"
+					"\t\t# LEGEND #\t\t^ indicates the release time and the deadline \n"
+					"\t\t##########\t\t* indicates the response and completion time \n\n";
 
 	std::cout << " TIME  ";
 	for(int i=0; i<= clockStep; i++)
@@ -216,13 +217,25 @@ void scheduler() {
 
 	if(preemptive) { //if the system is preemptive
 		std::map<int,int> myMap = getProcessorsOrderedByJobId();
-		for (std::map<int,int>::iterator it = myMap.begin(); it != myMap.end() && !readyJobsList.empty(); it++){
-			if(it->first < 0 || it->first > readyJobsList.front()) {
-				if(it->first >= 0)
-					addToList(it->first, READY);
+
+		//first let's fill up processors without a job
+		for (std::map<int,int>::iterator it = myMap.begin(); it != myMap.end() && !readyJobsList.empty() && it->first < 0; it++){
+			processors[it->second].setJob(readyJobsList.front());
+			readyJobsList.pop_front();
+		}
+
+		//secondly let's preempt jobs with low priority
+		for (std::map<int,int>::iterator it = myMap.end(); !readyJobsList.empty() && it->first >= 0; it--){
+			if(it == myMap.end()) it--;
+			if(it->first > readyJobsList.front()) {
+				addToList(it->first, READY);
 				processors[it->second].setJob(readyJobsList.front());
 				readyJobsList.pop_front();
 			}
+			else break; //this for cycle goes on only until there are jobs on the ready queue that have more priority than the executing ones
+
+			if(it == myMap.begin())
+				break;
 		}
 	}
 	else { //if the system ain't preemptive
