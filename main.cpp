@@ -130,6 +130,7 @@ void scheduler() {
 				processors[it->second].setProcess(readyProcessesList.front());
 				readyProcessesList.pop_front();
 			}
+			else break;
 	}
 	else {
 		for(std::vector<processor>::size_type i = 0; (i != processors.size()) && !readyProcessesList.empty(); ++i) {
