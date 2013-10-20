@@ -29,6 +29,7 @@ void scheduler();
 void removeDependencies(int processId);
 
 bool preemptive = true;
+bool bestEffort = true;
 int clockStep = -1;
 std::vector<processor> processors;
 std::vector<job> jobs;
@@ -77,7 +78,8 @@ void initialiseProcess(int jobId,  std::istringstream& iss){
 	iss >> deadline;
 	iss >> executionTime;
 
-	if(!jobs[jobId].initialise(jobId,releaseTime, deadline, executionTime)){ //if unfeasible
+	jobs[jobId].initialise(jobId,releaseTime, deadline, executionTime);
+	if((!bestEffort) || (!jobs[jobId].isFeasible())){
 		removeDependencies(jobId);
 		addToList(jobId, EXECUTED);
 	}
@@ -102,21 +104,26 @@ unsigned readFromFile() {
 
 	while (std::getline(myFile, line))
 	{
+		int temp;
 		std::istringstream iss(line);
 		switch(++lineNumber) {
 			case 0:
-				int temp;
 				iss >> temp;
 				if(temp == 0)
 					preemptive = false;
 				break;
 			case 1:
+				iss >> temp;
+				if(temp == 0)
+					bestEffort = false;
+				break;
+			case 2:
 				iss >> processorsNumber;
 				processors.assign(processorsNumber, processor());
 				for(unsigned i = 0; i < processorsNumber; i++)
 					processors[i].initialise(i+1);
 				break;
-			case 2:
+			case 3:
 				iss >> processesNumber;
 				jobs.assign(processesNumber, job());
 				break;
@@ -172,7 +179,8 @@ void printMachineTimeline() {
 		jobs[i].plotTimeline();
 
 //	return;
-	wait();
+//	wait();
+	std::cout << 	"\nJobs statistics\n";
 	for(std::vector<job>::size_type i = 0; i != jobs.size(); ++i)
 		jobs[i].printStats();
 }

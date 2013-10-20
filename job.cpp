@@ -35,8 +35,10 @@ bool job::deadlineMet(){
 }
 
 bool job::executeOneStep(int executionStep){
-	if(executedTime == 0)
+	if(executedTime == 0) {
+//		timeline.push_back (5);
 		responseTime = executionStep;
+	}
 
 	if(++executedTime == executionTime) {
 		completionTime = executionStep;
@@ -45,13 +47,15 @@ bool job::executeOneStep(int executionStep){
 	return false;
 }
 
-bool job::initialise(int _id, int _releaseTime, int _deadline, int _executionTime){
+void job::initialise(int _id, int _releaseTime, int _deadline, int _executionTime){
 	id = _id;
     releaseTime = _releaseTime;
     deadline = _deadline;
     executionTime = _executionTime;
+}
 
-    return (releaseTime + executionTime) < deadline;
+bool job::isFeasible(){
+	return (releaseTime + executionTime) < deadline;
 }
 
 void job::printDependenciesFrom() {
@@ -94,19 +98,25 @@ void job::plotTimeline(){
 }
 
 void job::printStats() {
-	std::cout << "Job " << id << ":\n";
-	std::cout << 	" execution time: " << executionTime << "\t"
-					 "release time: " << releaseTime << "\t"
-					 "deadline: before " << deadline << "\t"
-					 "response time: " << responseTime << "\t"
-					 "completion time: " << completionTime << '\n';
+	std::cout << 	" ## JOB ## " <<
+					"Release time: " << releaseTime << "\t"
+					"Execution time: " << executionTime << "\t"
+					"Deadline: before " << deadline << "\t";
+	if(isFeasible())
+		std::cout <<	"Feasible interval: " << deadline - releaseTime << "\n";
+	else
+		std::cout <<	"UNFEASIBLE\n";
+
+	std::cout <<	" ## " << std::setw(2) << std::setfill(' ') << id << "  ## "
+					"Response time: " << responseTime << "\t"
+					"Completion time: " << completionTime << "\t";
 
 	if(deadlineMet())
-		std::cout << " deadline met: YES\n";
+		std::cout << "Deadline met: YES\tLateness:" << deadline - completionTime;
 	else
-		std::cout << " deadline met: NO\n";
+		std::cout << "Deadline met: NO\tTardiness: " << completionTime - deadline;
 
-	std::cout << '\n';
+	std::cout << "\n\n";
 }
 
 int job::release() {

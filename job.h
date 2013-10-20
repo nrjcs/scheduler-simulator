@@ -12,7 +12,8 @@
 class job {
     public:
 		job(); 																		//construct
-        bool initialise(int _id, int _releaseTime, int _deadline, int _executionTime);	//set essential parameters
+        void initialise(int _id, int _releaseTime, int _deadline, int _executionTime);	//set essential parameters
+        bool isFeasible();																//returns whether the job is feasible or not
         void addDependency(int id);														//add dependency of another job
         void alertThisJobWhenDone(int id);												//add this job to his dependenciesTo
         bool deadlineMet();																//returns true if the deadline was met
@@ -33,5 +34,5 @@ class job {
         int responseTime;																//tells you when the jobs got executed the first time
         std::list<int> dependenciesFrom;												//defined on initialization, tells you which jobs our job must wait prior execution
         std::list<int> dependenciesTo;													//when executed, the job alert these jobs that his execution is complete
-//        std::list<int> timelinea;
+        std::list<int> timeline;
 };
