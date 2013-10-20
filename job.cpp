@@ -45,11 +45,13 @@ bool job::executeOneStep(int executionStep){
 	return false;
 }
 
-void job::initialise(int _id, int _releaseTime, int _deadline, int _executionTime){
-    id = _id;
+bool job::initialise(int _id, int _releaseTime, int _deadline, int _executionTime){
+	id = _id;
     releaseTime = _releaseTime;
     deadline = _deadline;
     executionTime = _executionTime;
+
+    return (releaseTime + executionTime) < deadline;
 }
 
 void job::printDependenciesFrom() {
@@ -79,12 +81,12 @@ void job::plotTimeline(){
 			std::cout << " ";
 
 		if(i == responseTime)
-			std::cout << "*";
+			std::cout << "$";
 		else
 			std::cout << " ";
 
 		if(i == completionTime)
-			std::cout << "*";
+			std::cout << "$";
 		else
 			std::cout << " ";
 	}

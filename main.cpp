@@ -26,6 +26,7 @@ bool executeStep();
 void printMachineTimeline();
 unsigned readFromFile();
 void scheduler();
+void removeDependencies(int processId);
 
 bool preemptive = true;
 int clockStep = -1;
@@ -76,13 +77,19 @@ void initialiseProcess(int jobId,  std::istringstream& iss){
 	iss >> deadline;
 	iss >> executionTime;
 
-	jobs[jobId].initialise(jobId,releaseTime, deadline, executionTime);
-	while (iss >> temp) {
-		jobs[jobId].addDependency(temp);
-		jobs[temp].alertThisJobWhenDone(jobId);
+	if(!jobs[jobId].initialise(jobId,releaseTime, deadline, executionTime)){ //if unfeasible
+		removeDependencies(jobId);
+		addToList(jobId, EXECUTED);
 	}
-
-	incomingProcessesMap[releaseTime].push_back(jobId);
+	else{
+		while (iss >> temp) {
+			if(!isInList(temp, EXECUTED)) {//if the job isn't executed yet
+				jobs[jobId].addDependency(temp);
+				jobs[temp].alertThisJobWhenDone(jobId);
+			}
+		}
+		incomingProcessesMap[releaseTime].push_back(jobId);
+	}
 }
 
 unsigned readFromFile() {
@@ -145,7 +152,7 @@ void scheduler() {
 void printMachineTimeline() {
 	std::cout << 	"\nMachine timeline \n\n"
 				 	" ######## [] indicates processors, <> indicates jobs \n"
-					" #LEGEND# ^ indicates the release time and the deadline \n"
+					" #LEGEND# $ indicates the release time and the deadline \n"
 					" ######## * indicates the response and completion time \n\n";
 
 	std::cout << " TIME  ";
@@ -190,17 +197,7 @@ bool executeStep(){
 				processors[i].setProcess(-1);
 				addToList(processRunning, EXECUTED);
 
-				//std::cout << "Jobs executed: ";
-				//utilities::printList(executedJobsList);
-
-				std::list<int> listDependenciesTo = jobs[processRunning].listDependenciesTo();
-
-				for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++) {
-					//std::cout << " removeDependency to "<< *it << "\n";
-					if( jobs[*it].removeDependency(processRunning) )
-						if(isInList(*it,WAITING))
-							swapList(*it, WAITING, READY);
-				}
+				removeDependencies(processRunning);
 
 				somethingEnded = true;
 			}
@@ -209,3 +206,14 @@ bool executeStep(){
 	return somethingEnded;
 }
 
+void removeDependencies(int processId) {
+	std::list<int> listDependenciesTo = jobs[processId].listDependenciesTo();
+
+	for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++) {
+		//std::cout << " removeDependency to "<< *it << "\n";
+		if( jobs[*it].removeDependency(processId) )
+			if(isInList(*it,WAITING))
+				swapList(*it, WAITING, READY);
+	}
+
+}

@@ -32,6 +32,7 @@ namespace lists {
 		switch(whichList) {
 			case READY: findIter = std::find(readyProcessesList.begin(), readyProcessesList.end(), processId); break;
 			case WAITING: findIter = std::find(waitingProcessesList.begin(), waitingProcessesList.end(), processId); break;
+			case EXECUTED: findIter = std::find(executedJobsList.begin(), executedJobsList.end(), processId); break;
 		}
 		return *findIter == processId;
 
