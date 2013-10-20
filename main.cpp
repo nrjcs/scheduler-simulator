@@ -22,7 +22,7 @@ enum { EXECUTED, INCOMING, READY, RUNNING, WAITING }; 			//jobs status
 
 bool checkIncomingJobs();										// this function release each scheduled job at the right time, returns true if one or more READY jobs are relased
 bool executeStep();												// makes each processor to execute one step: returns true if one or more jobs finish
-std::map<int,int> getProcessorsOrderedByJobPriority();			// returns a map with a link to the processors ordered by their current executing jobs
+std::map<int,int> getProcessorsOrderedByJobId();				// returns a map with a link to the processors ordered by their current executing job Ids
 void printMachineTimeline();									// prints report of the machine behavior
 unsigned readFromFile();										// load data from input file
 void readAndInitialiseJob(int jobId,  std::istringstream& iss); //read from input the job information and initialise it
@@ -89,13 +89,13 @@ bool executeStep(){
 	return somethingEnded;
 }
 
-std::map<int,int> getProcessorsOrderedByJobPriority() {
-	std::map<int,int> processorsOrderedByJobPriority;
+std::map<int,int> getProcessorsOrderedByJobId() {
+	std::map<int,int> processorsOrderedByJobId;
 
 	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
-		processorsOrderedByJobPriority[processors[i].getJob()] = i;
+		processorsOrderedByJobId[processors[i].getJob()] = i;
 
-	return processorsOrderedByJobPriority;
+	return processorsOrderedByJobId;
 }
 
 void printMachineTimeline() {
@@ -215,7 +215,7 @@ void scheduler() {
 	if(readyJobsList.empty()) return; //no processes ready, no party
 
 	if(preemptive) { //if the system is preemptive
-		std::map<int,int> myMap = getProcessorsOrderedByJobPriority();
+		std::map<int,int> myMap = getProcessorsOrderedByJobId();
 		for (std::map<int,int>::iterator it = myMap.begin(); it != myMap.end() && !readyJobsList.empty(); it++){
 			if(it->first < 0 || it->first > readyJobsList.front()) {
 				if(it->first >= 0)
