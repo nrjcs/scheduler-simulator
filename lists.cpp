@@ -10,58 +10,47 @@
 #include "lists.h"
 
 namespace lists {
-	enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
+	enum { EXECUTED, INCOMING, READY, RUNNING, WAITING }; //jobs status
 
-	std::map<int,std::list<int> > incomingProcessesMap; // step number and list of incoming processes
-	std::list<int> readyProcessesList;
-	std::list<int> waitingProcessesList;
-	std::list<int> executedJobsList;
+	std::list<int> executedJobsList;						// list of jobs that ended their execution
+	std::map<int,std::list<int> > incomingJobsMap;			// it contains a list of incoming jobs linked to their release time
+	std::list<int> readyJobsList;							// queue of ready jobs, ordered by priority
+	std::list<int> waitingJobsList;							// queue of released jobs that await other job's executions
 
-	void addToList(int processId,int whichList){
-		//std::cout << " adding job process" << processId << " to ";
+
+	void addToList(int jobId,int whichList){
 		switch(whichList) {
-			case READY: readyProcessesList.push_back(processId); readyProcessesList.sort(); break; // std::cout << "readyList\n"; I want this list always sorted
-			case WAITING: waitingProcessesList.push_back(processId); break; //std::cout << "waitingList\n";
-			case EXECUTED: executedJobsList.push_back(processId); break;
+			case READY: readyJobsList.push_back(jobId); readyJobsList.sort(); break;
+			case WAITING: waitingJobsList.push_back(jobId); break;
+			case EXECUTED: executedJobsList.push_back(jobId); break;
 		}
 		return;
 	}
 
-	bool isInList(int processId, int whichList){
+	bool isInList(int jobId, int whichList){
 		std::list<int>::iterator findIter;
 		switch(whichList) {
-			case READY: findIter = std::find(readyProcessesList.begin(), readyProcessesList.end(), processId); break;
-			case WAITING: findIter = std::find(waitingProcessesList.begin(), waitingProcessesList.end(), processId); break;
-			case EXECUTED: findIter = std::find(executedJobsList.begin(), executedJobsList.end(), processId); break;
+			case READY: findIter = std::find(readyJobsList.begin(), readyJobsList.end(), jobId); break;
+			case WAITING: findIter = std::find(waitingJobsList.begin(), waitingJobsList.end(), jobId); break;
+			case EXECUTED: findIter = std::find(executedJobsList.begin(), executedJobsList.end(), jobId); break;
 		}
-		return *findIter == processId;
+		return *findIter == jobId;
 
 	}
 
-	void printAllLists() {
-		std::cout << "Processes ready: ";
-		utilities::printList(readyProcessesList);
-
-//		std::cout << "Processes incoming: \n";
-//		utilities::printIncomingMap(incomingProcessesMap);
-
-		std::cout << "Processes waiting: ";
-		utilities::printList(waitingProcessesList);
+	void removeFromReady(int jobId){
+		readyJobsList.remove(jobId);
 	}
 
-	void removeFromReady(int processId){
-		readyProcessesList.remove(processId);
-	}
-
-	void swapList(int processId, int from, int to){
+	void swapList(int jobId, int from, int to){
 		switch(from) {
-			case READY: readyProcessesList.remove(processId); break;
-			case WAITING: waitingProcessesList.remove(processId); break;
+			case READY: readyJobsList.remove(jobId); break;
+			case WAITING: waitingJobsList.remove(jobId); break;
 		}
 
 		switch(to) {
-			case READY: readyProcessesList.push_back(processId); readyProcessesList.sort(); break;
-			case WAITING: waitingProcessesList.push_back(processId); break;
+			case READY: readyJobsList.push_back(jobId); readyJobsList.sort(); break;
+			case WAITING: waitingJobsList.push_back(jobId); break;
 		}
 	}
 }

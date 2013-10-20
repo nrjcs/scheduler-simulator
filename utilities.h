@@ -14,8 +14,8 @@
 #include <iomanip>
 
 namespace utilities {
-	void printIncomingMap(std::map<int,std::list<int> > myMap);
-	void printIntIntMap(std::map<int,int>& myMap);
-	void printList(std::list<int>& myList);
-	void printVector(std::vector<int>& myVect);
+	void printIncomingMap(std::map<int,std::list<int> > myMap);			// prints the Incoming Jobs map (see lists.h for reference)
+	void printIntIntMap(std::map<int,int>& myMap);						// prints the input <int,int> map
+	void printList(std::list<int>& myList);								// prints the input int list
+	void printVector(std::vector<int>& myVect);							// prints the input int vector
 }

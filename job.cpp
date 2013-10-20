@@ -24,6 +24,7 @@ job::job() {
 
 void job::addDependency(int _id) {
 	dependenciesFrom.push_back(_id);
+	dependenciesFromCopy.push_back(_id);
 }
 
 void job::alertThisJobWhenDone(int _id) {
@@ -56,12 +57,7 @@ bool job::isFeasible(){
 	return (releaseTime + executionTime) < deadline;
 }
 
-void job::printDependenciesFrom() {
-	std::cout << "Process " << id << " has these dependencies: ";
-	utilities::printList(dependenciesFrom);
-}
-
-std::list<int> job::listDependenciesTo() {
+std::list<int> job::getListDependenciesTo() {
 	return dependenciesTo;
 }
 
@@ -83,12 +79,12 @@ void job::plotTimeline(){
 			std::cout << " ";
 
 		if(i == responseTime)
-			std::cout << "$";
+			std::cout << "*";
 		else
 			std::cout << " ";
 
 		if(i == completionTime)
-			std::cout << "$";
+			std::cout << "*";
 		else
 			std::cout << " ";
 	}
@@ -105,16 +101,25 @@ void job::printStats() {
 	else
 		std::cout <<	"UNFEASIBLE\n";
 
-	std::cout <<	" ## " << std::setw(2) << std::setfill(' ') << id << "  ## "
-					"Response time: " << responseTime << "\t"
+	std::cout <<	" ## " << std::setw(2) << std::setfill(' ') << id << "  ## ";
+
+	if(responseTime>=0) {
+		std::cout <<"Response time: " << responseTime << "\t"
 					"Completion time: " << completionTime << "\t";
 
-	if(deadlineMet())
-		std::cout << "Deadline met: YES\tLateness:" << deadline - completionTime;
+		if(deadlineMet())
+			std::cout << "Deadline met: YES\tLateness:" << deadline - completionTime << "\n";
+		else
+			std::cout << "Deadline met: NO\tTardiness: " << completionTime - deadline << "\n";
+	}
 	else
-		std::cout << "Deadline met: NO\tTardiness: " << completionTime - deadline;
+		std::cout <<"NOT EXECUTED\n";
 
-	std::cout << "\n\n";
+
+	std::cout << " ######### Dependencies: ";
+	utilities::printList(dependenciesFromCopy);
+
+	std::cout << "\n";
 }
 
 int job::release() {

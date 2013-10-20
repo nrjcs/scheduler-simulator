@@ -1,5 +1,5 @@
 /********************************************************
- * process.cpp                                          *
+ * processor.cpp                                        *
  *                                                      *
  * Progetto Tipo 1 Sistemi in tempo Reale               *
  * Anno 2013/14                                         *
@@ -11,21 +11,20 @@
 
 processor::processor() {
 	id = -1;
-	process = -1;
+	job = -1;
 }
 
-int processor::getProcess(){
-	 return process;
+int processor::getJob(){
+	 return job;
 }
 
 int processor::executeStep(){
-	timeline.push_back(process);
-//	printTimeline();
-	return process;
+	timeline.push_back(job);
+	return job;
 }
 void processor::initialise(int _id) {
 	id = _id;
-	process = -id;
+	job = -id;
 }
 void processor::printTimeline(){
 	std::cout << " [" << std::setw(2) << std::setfill('0') << id << "]: ";
@@ -42,9 +41,9 @@ void processor::printTimeline(){
 	std::cout << '\n';
 }
 
-void processor::setProcess(int processId){
-	if(processId < 0)
-		process = -id;
+void processor::setJob(int jobId){
+	if(jobId < 0)
+		job = -id;
 	else
-		process = processId;
+		job = jobId;
  }

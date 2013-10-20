@@ -13,12 +13,12 @@ class processor {
     public:
         processor();						//construct
         int executeStep();					//simulate one execution cycle
-        int getProcess();					//returns its dedicated job
+        int getJob();						//returns its dedicated job
         void initialise(int _id);			//set essential parameters
         void printTimeline();				//prints the execution timeline of the processor
-        void setProcess(int processId);		//set a new running processor
+        void setJob(int jobId);				//set a new running job
     private:
         int id;								//defined on initialization, it's the processor id
-        int process;						//it contains its running job id
+        int job;							//it contains its running job id
         std::vector<int> timeline;			//for visualisation purposes, it's the current processor execution timeline
 };
