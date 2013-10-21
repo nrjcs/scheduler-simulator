@@ -6,22 +6,22 @@
 CPP_SRCS += \
 ../job.cpp \
 ../lists.cpp \
-../main.cpp \
 ../processor.cpp \
+../scheduler.cpp \
 ../utilities.cpp 
 
 OBJS += \
 ./job.o \
 ./lists.o \
-./main.o \
 ./processor.o \
+./scheduler.o \
 ./utilities.o 
 
 CPP_DEPS += \
 ./job.d \
 ./lists.d \
-./main.d \
 ./processor.d \
+./scheduler.d \
 ./utilities.d 
 
 
