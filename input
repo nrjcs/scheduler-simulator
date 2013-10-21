@@ -1,12 +1,12 @@
-1
-1
-2
-8
-0 10 3
-0 10 1
-0 10 2 1 
-0 10 2 2
-4 10 2 
+1 					# Preemptive  = 1, Nonpremptive = 0
+1 					# Best effort = 1, Non Best effort = 0
+1 					# Number of processors
+8 					# Number of jobs
+0 10 3	 			# From now on these lines represent jobs declaration:
+0 10 1				# 	-the first number of each line is the release time;
+0 10 2 1 			#	-the second number of each line is deadline;
+0 10 2 2			#	-the third number is its execution time;
+4 10 2 				#	-other optional numbers represents jobs id whose our job is dependent to
 0 10 4 1 4 6
 0 10 4 
 0 10 1 4 6

@@ -20,7 +20,7 @@ job::job() {
 	executedTime = 0;
 	id = -1;
 	releaseTime = -1;
-	responseTime = -1;
+	startTime = -1;
 }
 
 void job::addDependency(int _id) {
@@ -33,15 +33,15 @@ void job::alertThisJobWhenDone(int _id) {
 }
 
 bool job::deadlineMet(){
-	return completionTime < deadline;
+	return completionTime <= deadline;
 }
 
 bool job::executeOneStep(int executionStep){
 	if(executedTime == 0)
-		responseTime = executionStep;
+		startTime = executionStep;
 
 	if(++executedTime == executionTime) {
-		completionTime = executionStep;
+		completionTime = executionStep+1;
 		return true;
 	}
 	return false;
@@ -79,12 +79,12 @@ void job::plotTimeline(){
 		else
 			std::cout << " ";
 
-		if(i == responseTime)
+		if(i == startTime)
 			std::cout << "*";
 		else
 			std::cout << " ";
 
-		if(i == completionTime)
+		if(i == completionTime-1)
 			std::cout << "*";
 		else
 			std::cout << " ";
@@ -104,9 +104,9 @@ void job::printStats() {
 
 	std::cout <<	" ## " << std::setw(2) << std::setfill(' ') << id << "  ## ";
 
-	if(responseTime>=0) {
-		std::cout <<"Response time: " << responseTime << "\t"
-					"Completion time: " << completionTime << "\t";
+	if(startTime>=0) {
+		std::cout <<"Start time: " << startTime << "\t"
+					"End time: " << completionTime << "\t\t";
 
 		if(deadlineMet())
 			std::cout << "Deadline met: YES\tLateness:" << deadline - completionTime << "\n";
@@ -116,12 +116,17 @@ void job::printStats() {
 	else
 		std::cout <<"NOT EXECUTED\n";
 
+	std::cout << " ######### ";
+
+	if(startTime>=0)
+		std::cout << "Response time: " << completionTime - releaseTime <<"\t";
+
 	if(dependenciesFromCopy.size() > 0) {
-		std::cout << " ######### Dependencies: ";
+		std::cout << "Dependencies: ";
 		utilities::printList(dependenciesFromCopy);
 	}
 
-	std::cout << "\n";
+	std::cout << "\n\n";
 }
 
 int job::release() {

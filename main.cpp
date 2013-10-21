@@ -27,7 +27,7 @@ void printMachineTimeline();									// prints report of the machine behavior
 unsigned readFromFile();										// load data from input file
 void readAndInitialiseJob(int jobId,  std::istringstream& iss); //read from input the job information and initialise it
 void removeDependencies(int jobId);								// alerts all the linked jobs that the jobId has finished
-void scheduler();												// add/preempt jobs to/from processors
+void dispatcher();												// add/preempt jobs to/from processors
 void step();													// it's like a clock
 void wait();													// stops the program execution until the user press the return key
 
@@ -106,12 +106,12 @@ void printMachineTimeline() {
 					"\t\t##########\t\t* indicates the response and completion time \n\n";
 
 	std::cout << " TIME  ";
-	for(int i=0; i<= clockStep; i++)
+	for(int i=0; i<= clockStep+1; i++)
 		std::cout << std::setw(2) << std::setfill('0') << i << " ";
 
 	std::cout << '\n' << "      ";
 
-	for(int i=0; i<= clockStep; i++)
+	for(int i=0; i<= clockStep+1; i++)
 		std::cout << " | ";
 	std::cout << "\n";
 
@@ -212,7 +212,7 @@ void removeDependencies(int jobId) {
 				swapList(*it, WAITING, READY);
 }
 
-void scheduler() {
+void dispatcher() {
 	if(readyJobsList.empty()) return; //no processes ready, no party
 
 	if(preemptive) { //if the system is preemptive
@@ -252,10 +252,10 @@ void step() {
 	clockStep++; //updates clock
 
 	if(checkIncomingJobs()) //returns true if one or more jobs
-		scheduler();
+		dispatcher();
 
 	if(executeStep()) //returns true if one or more jobs end!
-		scheduler();
+		dispatcher();
 }
 
 void wait() {

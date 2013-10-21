@@ -31,7 +31,7 @@ class job {
         int executedTime;																//tells you how many steps the job already did
         int id;																			//set on initialization, it's the job id
         int releaseTime;																//set on initialization, tells you when the job is released
-        int responseTime;																//tells you when the jobs got executed the first time
+        int startTime;																	//tells you when the jobs started its execution
         std::list<int> dependenciesFrom;												//set on initialization, tells you which jobs our job must wait prior execution
         std::list<int> dependenciesFromCopy;											//set on initialization, tells you which jobs our job must wait prior execution
         std::list<int> dependenciesTo;													//when executed, the job alert these jobs that his execution is complete
