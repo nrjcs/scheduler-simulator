@@ -36,6 +36,7 @@ bool bestEffort = true;											// by default the machine is best effort (exec
 int clockStep = -1;												// keeps track of the system time
 std::vector<processor> processors;								// array of system's processors
 std::vector<job> jobs;											// array of system's jobs
+bool deadlineMet=true;
 
 int main(int argc, char** argv){
 	//initialising everything
@@ -44,13 +45,21 @@ int main(int argc, char** argv){
     std::cout << "Starting machine...";
 
     //main loop
-    while(executedJobsList.size() < jobsNumber)
+    while(executedJobsList.size() + waitingJobsList.size() < jobsNumber)
     	step();
 
     std::cout << "...all done!\n\n";
 
     //print report
     std::cout << "################################################ REPORT ################################################\n\n";
+    if(waitingJobsList.size())
+    	std::cout << "The system finished early because it was on deadlock.\n";
+
+    if(deadlineMet)
+    	std::cout << "All executed jobs met their deadline.\n\n";
+    else
+     	std::cout << "Some jobs missed their deadline.\n\n";
+
     printMachineTimeline();
 
     return 0;
@@ -80,7 +89,7 @@ bool executeStep(){
 			if(jobs[processRunning].executeOneStep(clockStep)) { //returns true when the job ends
 				processors[i].setJob(-1); //remove job from processor
 				addToList(processRunning, EXECUTED); //add job in executed jobs list
-
+				deadlineMet = deadlineMet && jobs[processRunning].deadlineMet();
 				removeDependencies(processRunning); // alerts other jobs about that the job finished
 
 				somethingEnded = true; //for return porpouses

@@ -31,12 +31,10 @@ namespace lists {
 	bool isInList(int jobId, int whichList){
 		std::list<int>::iterator findIter;
 		switch(whichList) {
-			case READY: findIter = std::find(readyJobsList.begin(), readyJobsList.end(), jobId); break;
-			case WAITING: findIter = std::find(waitingJobsList.begin(), waitingJobsList.end(), jobId); break;
-			case EXECUTED: findIter = std::find(executedJobsList.begin(), executedJobsList.end(), jobId); break;
+			case READY: findIter = std::find(readyJobsList.begin(), readyJobsList.end(), jobId); return findIter != readyJobsList.end();
+			case WAITING: findIter = std::find(waitingJobsList.begin(), waitingJobsList.end(), jobId); return findIter != waitingJobsList.end();
+			case EXECUTED: findIter = std::find(executedJobsList.begin(), executedJobsList.end(), jobId); return findIter != executedJobsList.end();
 		}
-		return *findIter == jobId;
-
 	}
 
 	void removeFromReady(int jobId){

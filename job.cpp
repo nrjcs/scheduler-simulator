@@ -55,7 +55,7 @@ void job::initialise(int _id, int _releaseTime, int _deadline, int _executionTim
 }
 
 bool job::isFeasible(){
-	return (releaseTime + executionTime) < deadline;
+	return (releaseTime + executionTime) <= deadline;
 }
 
 std::list<int> job::getListDependenciesTo() {
@@ -113,8 +113,13 @@ void job::printStats() {
 		else
 			std::cout << "Deadline met: NO\tTardiness: " << completionTime - deadline << "\n";
 	}
-	else
-		std::cout <<"NOT EXECUTED\n";
+	else {
+		std::cout <<"NOT EXECUTED";
+		if(dependenciesFromCopy.size() > 0) {
+			std::cout << " (DEADLOCK)";
+		}
+		std::cout << '\n';
+	}
 
 	std::cout << " ######### ";
 
@@ -124,9 +129,10 @@ void job::printStats() {
 	if(dependenciesFromCopy.size() > 0) {
 		std::cout << "Dependencies: ";
 		utilities::printList(dependenciesFromCopy);
+		std::cout << "\n";
 	}
-
-	std::cout << "\n\n";
+	else
+		std::cout << "\n\n";
 }
 
 int job::release() {
