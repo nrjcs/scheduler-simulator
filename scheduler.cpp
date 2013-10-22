@@ -40,12 +40,12 @@ bool deadlineMet=true;
 
 int main(int argc, char** argv){
 	//initialising everything
-	unsigned jobsNumber = readFromFile();
+	unsigned totalJobsNumber = readFromFile();
 
     std::cout << "Starting machine...";
 
     //main loop
-    while(executedJobsList.size() + waitingJobsList.size() < jobsNumber)
+    while(executedJobsList.size() + waitingJobsList.size() < totalJobsNumber)
     	step();
 
     std::cout << "...all done!\n\n";
