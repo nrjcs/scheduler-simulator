@@ -21,13 +21,14 @@ using namespace lists;
 enum { EXECUTED, INCOMING, READY, RUNNING, WAITING }; 			//jobs status
 
 bool checkIncomingJobs();										// this function release each scheduled job at the right time, returns true if one or more READY jobs are relased
+void dispatcher();												// add/preempt jobs to/from processors
 bool executeStep();												// makes each processor to execute one step: returns true if one or more jobs finish
 std::map<int,int> getProcessorsOrderedByJobId();				// returns a map with a link to the processors ordered by their current executing job Ids
 void printMachineTimeline();									// prints report of the machine behavior
 void readFromFile();											// load data from input file
-void readAndInitialiseJob(int jobId,  std::istringstream& iss); //read from input the job information and initialise it
+void readAndInitialiseJob(int jobId,  std::istringstream& iss); // read from input the job information and initialise it
 void removeDependencies(int jobId);								// alerts all the linked jobs that the jobId has finished
-void dispatcher();												// add/preempt jobs to/from processors
+void printReport();												// prints the final report
 void step();													// it's like a clock
 void wait();													// stops the program execution until the user press the return key
 
@@ -53,32 +54,7 @@ int main(int argc, char** argv){
     std::cout << "...all done!\n\n";
 
     //print report
-    std::cout << "################################################ REPORT ################################################\n\n";
-    if(waitingJobsList.size())
-    	std::cout << "The system finished early because " << waitingJobsList.size() << " jobs were in deadlock.\n";
-
-    if(unfeasibleJobsNumber>0){
-    	if(!bestEffort)
-    		if(unfeasibleJobsNumber == 1)
-    			std::cout << "There was " << unfeasibleJobsNumber << " unfeasible job (not executed).\n";
-    		else
-    			std::cout << "There were " << unfeasibleJobsNumber << " unfeasible jobs (not executed).\n";
-    	else
-    		if(unfeasibleJobsNumber == 1)
-				std::cout << "There was " << unfeasibleJobsNumber << " unfeasible job (executed anyway).\n";
-			else
-				std::cout << "There were " << unfeasibleJobsNumber << " unfeasible jobs (executed anyway).\n";
-    }
-
-    if(jobsThatNotMetTheirDeadline == 0)
-    	std::cout << "All executed jobs met their deadline.\n\n";
-    else
-    	if(jobsThatNotMetTheirDeadline == 1)
-    		std::cout << jobsThatNotMetTheirDeadline << " job missed their deadline.\n\n";
-    	else
-    		std::cout << jobsThatNotMetTheirDeadline << " jobs missed its deadline.\n\n";
-
-    printMachineTimeline();
+    printReport();
 
     return 0;
 }
@@ -130,7 +106,7 @@ void printMachineTimeline() {
 	std::cout << 	"Machine timeline \n\n"
 				 	"\t\t##########\t\t[] indicates processors, <> indicates jobs \n"
 					"\t\t# LEGEND #\t\t^ indicates the release time and the deadline \n"
-					"\t\t##########\t\t* indicates the response and completion time \n\n";
+					"\t\t##########\t\t* indicates the start execution and end execution time \n\n";
 
 	std::cout << " TIME  ";
 	for(int i=0; i<= clockStep+1; i++)
@@ -155,6 +131,35 @@ void printMachineTimeline() {
 	std::cout << 	"\nJobs statistics\n\n";
 	for(std::vector<job>::size_type i = 0; i != jobs.size(); ++i)
 		jobs[i].printStats();
+}
+
+void printReport() {
+	std::cout << "################################################ REPORT ################################################\n\n";
+	    if(waitingJobsList.size())
+	    	std::cout << "The system finished early because " << waitingJobsList.size() << " jobs were in deadlock.\n";
+
+	    if(unfeasibleJobsNumber>0){
+	    	if(!bestEffort)
+	    		if(unfeasibleJobsNumber == 1)
+	    			std::cout << "There was " << unfeasibleJobsNumber << " unfeasible job (not executed).\n";
+	    		else
+	    			std::cout << "There were " << unfeasibleJobsNumber << " unfeasible jobs (not executed).\n";
+	    	else
+	    		if(unfeasibleJobsNumber == 1)
+					std::cout << "There was " << unfeasibleJobsNumber << " unfeasible job (executed anyway).\n";
+				else
+					std::cout << "There were " << unfeasibleJobsNumber << " unfeasible jobs (executed anyway).\n";
+	    }
+
+	    if(jobsThatNotMetTheirDeadline == 0)
+	    	std::cout << "All executed jobs met their deadline.\n\n";
+	    else
+	    	if(jobsThatNotMetTheirDeadline == 1)
+	    		std::cout << jobsThatNotMetTheirDeadline << " job missed their deadline.\n\n";
+	    	else
+	    		std::cout << jobsThatNotMetTheirDeadline << " jobs missed its deadline.\n\n";
+
+	    printMachineTimeline();
 }
 
 void readAndInitialiseJob(int jobId,  std::istringstream& iss) {
