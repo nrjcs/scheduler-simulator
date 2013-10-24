@@ -8,33 +8,18 @@
  *                                                      *
  * Author: Federico Zanetello                           *
  ********************************************************/
-#include "job.h"
-#include "processor.h"
-#include "lists.h"
-#include <limits>
-#include <vector>
-#include <fstream>
-#include <sstream>
-#include <string>
+#include "scheduler.h"
+
 using namespace lists;
 
 enum { EXECUTED, INCOMING, READY, RUNNING, WAITING }; 			//jobs status
 
-bool checkIncomingJobs();										// this function release each scheduled job at the right time, returns true if one or more READY jobs are relased
-void dispatcher();												// add/preempt jobs to/from processors
-bool executeStep();												// makes each processor to execute one step: returns true if one or more jobs finish
-std::map<int,int> getProcessorsOrderedByJobId();				// returns a map with a link to the processors ordered by their current executing job Ids
-void printMachineTimeline();									// prints report of the machine behavior
 void readFromFile();											// load data from input file
 void readAndInitialiseJob(int jobId,  std::istringstream& iss); // read from input the job information and initialise it
 void removeDependencies(int jobId);								// alerts all the linked jobs that the jobId has finished
-void printReport();												// prints the final report
-void step();													// it's like a clock
-void wait();													// stops the program execution until the user press the return key
 
 bool preemptive = true;											// by default the machine is preemptive
 bool bestEffort = true;											// by default the machine is best effort (executes unfeasible jobs)
-int clockStep = -1;												// keeps track of the system time
 std::vector<processor> processors;								// array of system's processors
 std::vector<job> jobs;											// array of system's jobs
 int jobsThatNotMetTheirDeadline = 0;							// current jobs number that finished after their deadline
@@ -47,119 +32,9 @@ int main(int argc, char** argv){
 
     std::cout << "Starting machine...";
 
-    //main loop
-    while(executedJobsList.size() + waitingJobsList.size() < totalJobsNumber)
-    	step();
-
-    std::cout << "...all done!\n\n";
-
-    //print report
-    printReport();
+    scheduler(preemptive, bestEffort, processors, jobs, unfeasibleJobsNumber, totalJobsNumber);
 
     return 0;
-}
-
-bool checkIncomingJobs(){
-	bool thereAreNewReadyJobs = false;
-	if(incomingJobsMap[clockStep].size() > 0) { //If there are new jobs
-		for (std::list<int>::iterator it = incomingJobsMap[clockStep].begin(); it != incomingJobsMap[clockStep].end(); it++) {
-			int temp = *it;
-			if(jobs[temp].release() == READY){
-				lists::addToList(temp, READY);
-				thereAreNewReadyJobs = true;
-			}
-			else
-				lists::addToList(temp, WAITING);
-		}
-	}
-	return thereAreNewReadyJobs;
-}
-
-bool executeStep(){
-	bool somethingEnded = false; //if a job ended this function returns true
-	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i) {
-		int processRunning = processors[i].executeStep();
-		if(processRunning  >= 0) {
-			if(jobs[processRunning].executeOneStep(clockStep)) { //returns true when the job ends
-				processors[i].setJob(-1); //remove job from processor
-				addToList(processRunning, EXECUTED); //add job in executed jobs list
-				jobsThatNotMetTheirDeadline += jobs[processRunning].deadlineMet() ? 0 : 1;
-				removeDependencies(processRunning); // alerts other jobs about that the job finished
-
-				somethingEnded = true; //for return porpouses
-			}
-		}
-	}
-	return somethingEnded;
-}
-
-std::map<int,int> getProcessorsOrderedByJobId() {
-	std::map<int,int> processorsOrderedByJobId;
-
-	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
-		processorsOrderedByJobId[processors[i].getJob()] = i;
-
-	return processorsOrderedByJobId;
-}
-
-void printMachineTimeline() {
-	std::cout << 	"Machine timeline \n\n"
-				 	"\t\t##########\t\t[] indicates processors, <> indicates jobs \n"
-					"\t\t# LEGEND #\t\t^ indicates the release time and the deadline \n"
-					"\t\t##########\t\t* indicates the start execution and end execution time \n\n";
-
-	std::cout << " TIME  ";
-	for(int i=0; i<= clockStep+1; i++)
-		std::cout << std::setw(2) << std::setfill('0') << i << " ";
-
-	std::cout << '\n' << "      ";
-
-	for(int i=0; i<= clockStep+1; i++)
-		std::cout << " | ";
-	std::cout << "\n";
-
-	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
-		processors[i].printTimeline();
-
-//	wait();
-
-	for(std::vector<job>::size_type i = 0; i != jobs.size(); ++i)
-		jobs[i].plotTimeline();
-
-//	wait();
-
-	std::cout << 	"\nJobs statistics\n\n";
-	for(std::vector<job>::size_type i = 0; i != jobs.size(); ++i)
-		jobs[i].printStats();
-}
-
-void printReport() {
-	std::cout << "################################################ REPORT ################################################\n\n";
-	    if(waitingJobsList.size())
-	    	std::cout << "The system finished early because " << waitingJobsList.size() << " jobs were in deadlock.\n";
-
-	    if(unfeasibleJobsNumber>0){
-	    	if(!bestEffort)
-	    		if(unfeasibleJobsNumber == 1)
-	    			std::cout << "There was " << unfeasibleJobsNumber << " unfeasible job (not executed).\n";
-	    		else
-	    			std::cout << "There were " << unfeasibleJobsNumber << " unfeasible jobs (not executed).\n";
-	    	else
-	    		if(unfeasibleJobsNumber == 1)
-					std::cout << "There was " << unfeasibleJobsNumber << " unfeasible job (executed anyway).\n";
-				else
-					std::cout << "There were " << unfeasibleJobsNumber << " unfeasible jobs (executed anyway).\n";
-	    }
-
-	    if(jobsThatNotMetTheirDeadline == 0)
-	    	std::cout << "All executed jobs met their deadline.\n\n";
-	    else
-	    	if(jobsThatNotMetTheirDeadline == 1)
-	    		std::cout << jobsThatNotMetTheirDeadline << " job missed their deadline.\n\n";
-	    	else
-	    		std::cout << jobsThatNotMetTheirDeadline << " jobs missed its deadline.\n\n";
-
-	    printMachineTimeline();
 }
 
 void readAndInitialiseJob(int jobId,  std::istringstream& iss) {
@@ -244,55 +119,4 @@ void removeDependencies(int jobId) {
 		if( jobs[*it].removeDependency(jobId) )
 			if(isInList(*it,WAITING))
 				swapList(*it, WAITING, READY);
-}
-
-void dispatcher() {
-	if(readyJobsList.empty()) return; //no processes ready, no party
-
-	if(preemptive) { //if the system is preemptive
-		std::map<int,int> myMap = getProcessorsOrderedByJobId();
-
-		//first let's fill up processors without a job
-		for (std::map<int,int>::iterator it = myMap.begin(); it != myMap.end() && !readyJobsList.empty() && it->first < 0; it++){
-			processors[it->second].setJob(readyJobsList.front());
-			readyJobsList.pop_front();
-		}
-
-		//secondly let's preempt jobs with low priority
-		for (std::map<int,int>::iterator it = myMap.end(); !readyJobsList.empty() && it->first >= 0; it--){
-			if(it == myMap.end()) it--;
-			if(it->first > readyJobsList.front()) {
-				addToList(it->first, READY);
-				processors[it->second].setJob(readyJobsList.front());
-				readyJobsList.pop_front();
-			}
-			else break; //this for cycle goes on only until there are jobs on the ready queue that have more priority than the executing ones
-
-			if(it == myMap.begin())
-				break;
-		}
-	}
-	else { //if the system ain't preemptive
-		for(std::vector<processor>::size_type i = 0; (i != processors.size()) && !readyJobsList.empty(); ++i) {
-			if(processors[i].getJob() < 0){ //if there's no job running on this processor
-				processors[i].setJob(readyJobsList.front());
-				readyJobsList.pop_front();
-			}
-		}
-	}
-}
-
-void step() {
-	clockStep++; //updates clock
-
-	if(checkIncomingJobs()) //returns true if one or more jobs
-		dispatcher();
-
-	if(executeStep()) //returns true if one or more jobs end!
-		dispatcher();
-}
-
-void wait() {
-	std::cout << "Press ENTER to continue...\n";
-	std::cin.ignore( std::numeric_limits <std::streamsize> ::max(), '\n' );
 }

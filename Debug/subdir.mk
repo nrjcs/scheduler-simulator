@@ -8,6 +8,7 @@ CPP_SRCS += \
 ../lists.cpp \
 ../main.cpp \
 ../processor.cpp \
+../scheduler.cpp \
 ../utilities.cpp 
 
 OBJS += \
@@ -15,6 +16,7 @@ OBJS += \
 ./lists.o \
 ./main.o \
 ./processor.o \
+./scheduler.o \
 ./utilities.o 
 
 CPP_DEPS += \
@@ -22,6 +24,7 @@ CPP_DEPS += \
 ./lists.d \
 ./main.d \
 ./processor.d \
+./scheduler.d \
 ./utilities.d 
 
 

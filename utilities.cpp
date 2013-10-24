@@ -36,4 +36,9 @@ namespace utilities {
 			std::cout << myVec[i] << " ";
 		std::cout << '\n';
 	}
+
+	void wait() {
+		std::cout << "Press ENTER to continue...\n";
+		std::cin.ignore( std::numeric_limits <std::streamsize> ::max(), '\n' );
+	}
 }
