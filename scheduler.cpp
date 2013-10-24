@@ -24,7 +24,7 @@ bool checkIncomingJobs();										// this function release each scheduled job a
 bool executeStep();												// makes each processor to execute one step: returns true if one or more jobs finish
 std::map<int,int> getProcessorsOrderedByJobId();				// returns a map with a link to the processors ordered by their current executing job Ids
 void printMachineTimeline();									// prints report of the machine behavior
-unsigned readFromFile();										// load data from input file
+void readFromFile();											// load data from input file
 void readAndInitialiseJob(int jobId,  std::istringstream& iss); //read from input the job information and initialise it
 void removeDependencies(int jobId);								// alerts all the linked jobs that the jobId has finished
 void dispatcher();												// add/preempt jobs to/from processors
@@ -36,11 +36,13 @@ bool bestEffort = true;											// by default the machine is best effort (exec
 int clockStep = -1;												// keeps track of the system time
 std::vector<processor> processors;								// array of system's processors
 std::vector<job> jobs;											// array of system's jobs
-bool deadlineMet=true;
+int jobsThatNotMetTheirDeadline = 0;							// current jobs number that finished after their deadline
+int unfeasibleJobsNumber = 0;									// current unfeasible jobs number
+unsigned totalJobsNumber;										// total number of jobs in the system
 
 int main(int argc, char** argv){
 	//initialising everything
-	unsigned totalJobsNumber = readFromFile();
+	readFromFile();
 
     std::cout << "Starting machine...";
 
@@ -53,12 +55,28 @@ int main(int argc, char** argv){
     //print report
     std::cout << "################################################ REPORT ################################################\n\n";
     if(waitingJobsList.size())
-    	std::cout << "The system finished early because it was on deadlock.\n";
+    	std::cout << "The system finished early because " << waitingJobsList.size() << " jobs were in deadlock.\n";
 
-    if(deadlineMet)
+    if(unfeasibleJobsNumber>0){
+    	if(!bestEffort)
+    		if(unfeasibleJobsNumber == 1)
+    			std::cout << "There was " << unfeasibleJobsNumber << " unfeasible job (not executed).\n";
+    		else
+    			std::cout << "There were " << unfeasibleJobsNumber << " unfeasible jobs (not executed).\n";
+    	else
+    		if(unfeasibleJobsNumber == 1)
+				std::cout << "There was " << unfeasibleJobsNumber << " unfeasible job (executed anyway).\n";
+			else
+				std::cout << "There were " << unfeasibleJobsNumber << " unfeasible jobs (executed anyway).\n";
+    }
+
+    if(jobsThatNotMetTheirDeadline == 0)
     	std::cout << "All executed jobs met their deadline.\n\n";
     else
-     	std::cout << "Some jobs missed their deadline.\n\n";
+    	if(jobsThatNotMetTheirDeadline == 1)
+    		std::cout << jobsThatNotMetTheirDeadline << " job missed their deadline.\n\n";
+    	else
+    		std::cout << jobsThatNotMetTheirDeadline << " jobs missed its deadline.\n\n";
 
     printMachineTimeline();
 
@@ -89,7 +107,7 @@ bool executeStep(){
 			if(jobs[processRunning].executeOneStep(clockStep)) { //returns true when the job ends
 				processors[i].setJob(-1); //remove job from processor
 				addToList(processRunning, EXECUTED); //add job in executed jobs list
-				deadlineMet = deadlineMet && jobs[processRunning].deadlineMet();
+				jobsThatNotMetTheirDeadline += jobs[processRunning].deadlineMet() ? 0 : 1;
 				removeDependencies(processRunning); // alerts other jobs about that the job finished
 
 				somethingEnded = true; //for return porpouses
@@ -147,24 +165,27 @@ void readAndInitialiseJob(int jobId,  std::istringstream& iss) {
 
 	jobs[jobId].initialise(jobId,releaseTime, deadline, executionTime);
 
-	if((!bestEffort) && (!jobs[jobId].isFeasible())){ //this decides whether the job is going to be executed or not
-		removeDependencies(jobId);
-		addToList(jobId, EXECUTED);
-	}
-	else{
-		while (iss >> temp) {
-			if(!isInList(temp, EXECUTED)) { //if the job isn't executed yet
-				jobs[jobId].addDependency(temp);
-				jobs[temp].alertThisJobWhenDone(jobId);
-			}
+	if(!jobs[jobId].isFeasible()){ //if the job is unfeasible
+		unfeasibleJobsNumber++;
+		if(!bestEffort) { //if the system is not best effort the job is not going to be executed
+			removeDependencies(jobId);
+			addToList(jobId, EXECUTED);
+			return;
 		}
-		incomingJobsMap[releaseTime].push_back(jobId);
 	}
+	// adding dependencies
+	while (iss >> temp) {
+		if(!isInList(temp, EXECUTED)) { //if the job isn't executed yet
+			jobs[jobId].addDependency(temp);
+			jobs[temp].alertThisJobWhenDone(jobId);
+		}
+	}
+	incomingJobsMap[releaseTime].push_back(jobId);
 }
 
-unsigned readFromFile() {
+void readFromFile() {
 	std::cout << "Initialising machine...\n\nMachine statistics\n";
-	unsigned processorsNumber, processesNumber;
+	unsigned processorsNumber;
 	std::ifstream myFile("input");
 
 	int jobId = -1, lineNumber = -1;
@@ -202,14 +223,13 @@ unsigned readFromFile() {
 					processors[i].initialise(i+1);
 				break;
 			case 3:
-				iss >> processesNumber;
-				std::cout << " -Jobs: " << processesNumber << ";\n\n";
-				jobs.assign(processesNumber, job());
+				iss >> totalJobsNumber;
+				std::cout << " -Jobs: " << totalJobsNumber << ";\n\n";
+				jobs.assign(totalJobsNumber, job());
 				break;
 			default: readAndInitialiseJob(++jobId,iss);
 		}
 	}
-	return processesNumber;
 }
 
 void removeDependencies(int jobId) {
