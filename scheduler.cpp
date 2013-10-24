@@ -12,7 +12,7 @@
 
 enum { EXECUTED, INCOMING, READY, RUNNING, WAITING }; 	//jobs status
 
-scheduler::scheduler(bool _preemptive, bool _bestEffort, std::vector<processor>& _processors, std::vector<job>& _jobs, int _unfeasibleJobsNumber, int _totalJobsNumber) {
+scheduler::scheduler(bool _preemptive, bool _bestEffort, std::vector<processor>& _processors, std::vector<job>& _jobs, int _unfeasibleJobsNumber) {
 	// initialising parameters
 
 	preemptive = _preemptive;
@@ -20,7 +20,7 @@ scheduler::scheduler(bool _preemptive, bool _bestEffort, std::vector<processor>&
 	processors = _processors;
 	jobs = _jobs;
 	unfeasibleJobsNumber = _unfeasibleJobsNumber;
-	totalJobsNumber = _totalJobsNumber;
+	totalJobsNumber = jobs.size();
 
 	clockStep = -1;
 	jobsThatNotMetTheirDeadline = 0;

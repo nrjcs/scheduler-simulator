@@ -32,7 +32,7 @@ int main(int argc, char** argv){
 
     std::cout << "Starting machine...";
 
-    scheduler(preemptive, bestEffort, processors, jobs, unfeasibleJobsNumber, totalJobsNumber);
+    scheduler(preemptive, bestEffort, processors, jobs, unfeasibleJobsNumber);
 
     return 0;
 }
