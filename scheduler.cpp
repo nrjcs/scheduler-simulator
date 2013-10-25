@@ -10,14 +10,16 @@
  ********************************************************/
 #include "scheduler.h"
 
-enum { EXECUTED, INCOMING, READY, RUNNING, WAITING }; 	//jobs status
-
-scheduler::scheduler(bool _preemptive, bool _bestEffort, std::vector<processor>& _processors, std::vector<job>& _jobs, int _unfeasibleJobsNumber) {
+scheduler::scheduler(bool _preemptive, bool _bestEffort, unsigned _processorsNumber, const std::vector<job>& _jobs, int _unfeasibleJobsNumber) {
 	// initialising parameters
 
 	preemptive = _preemptive;
 	bestEffort = _bestEffort;
-	processors = _processors;
+
+	processors.assign(_processorsNumber, processor());
+	for(unsigned i = 0; i < _processorsNumber; i++)
+		processors[i].initialise(i+1);
+
 	jobs = _jobs;
 	unfeasibleJobsNumber = _unfeasibleJobsNumber;
 	totalJobsNumber = jobs.size();
@@ -43,12 +45,12 @@ bool scheduler::checkIncomingJobs(){
 	if(incomingJobsMap[clockStep].size() > 0) { //If there are new jobs
 		for (std::list<int>::iterator it = incomingJobsMap[clockStep].begin(); it != incomingJobsMap[clockStep].end(); it++) {
 			int temp = *it;
-			if(jobs[temp].release() == READY){
-				lists::addToList(temp, READY);
+			if(jobs[temp].release() == utilities::READY){
+				lists::addToList(temp, utilities::READY);
 				thereAreNewReadyJobs = true;
 			}
 			else
-				lists::addToList(temp, WAITING);
+				lists::addToList(temp, utilities::WAITING);
 		}
 	}
 	return thereAreNewReadyJobs;
@@ -61,7 +63,7 @@ bool scheduler::executeStep(){
 		if(processRunning  >= 0) {
 			if(jobs[processRunning].executeOneStep(clockStep)) { //returns true when the job ends
 				processors[i].setJob(-1); //remove job from processor
-				addToList(processRunning, EXECUTED); //add job in executed jobs list
+				addToList(processRunning, utilities::EXECUTED); //add job in executed jobs list
 				jobsThatNotMetTheirDeadline += jobs[processRunning].deadlineMet() ? 0 : 1;
 				removeDependencies(processRunning); // alerts other jobs about that the job finished
 
@@ -146,8 +148,8 @@ void scheduler::removeDependencies(int jobId) {
 
 	for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++)
 		if( jobs[*it].removeDependency(jobId) )
-			if(isInList(*it,WAITING))
-				swapList(*it, WAITING, READY);
+			if(isInList(*it, utilities::WAITING))
+				swapList(*it, utilities::WAITING, utilities::READY);
 }
 
 void scheduler::dispatcher() {
@@ -166,7 +168,7 @@ void scheduler::dispatcher() {
 		for (std::map<int,int>::iterator it = myMap.end(); !readyJobsList.empty() && it->first >= 0; it--){
 			if(it == myMap.end()) it--;
 			if(it->first > readyJobsList.front()) {
-				addToList(it->first, READY);
+				addToList(it->first, utilities::READY);
 				processors[it->second].setJob(readyJobsList.front());
 				readyJobsList.pop_front();
 			}

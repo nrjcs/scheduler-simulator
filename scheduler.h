@@ -15,7 +15,7 @@ using namespace lists;
 
 class scheduler {
 	public:
-		scheduler(bool _preemptive, bool _bestEffort, std::vector<processor>& _processors, std::vector<job>& jobs, int _unfeasibleJobsNumber); //construct
+		scheduler(bool _preemptive, bool _bestEffort, unsigned _processorsNumber, const std::vector<job>& jobs, int _unfeasibleJobsNumber); //construct
 	private:
 		bool checkIncomingJobs();										// this function release each scheduled job at the right time, returns true if one or more READY jobs are relased
 		void dispatcher();												// add/preempt jobs to/from processors

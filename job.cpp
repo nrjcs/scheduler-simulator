@@ -11,8 +11,6 @@
 #include "job.h"
 #include <sstream>
 
-enum { EXECUTED, INCOMING, READY, RUNNING, WAITING };
-
 job::job() {
 	completionTime = -1;
 	deadline = -1;
@@ -62,18 +60,12 @@ std::list<int> job::getListDependenciesTo() {
 	return dependenciesTo;
 }
 
-int max(int a, int b) {
-	if(a>=b)
-		return a;
-	return b;
-}
-
 void job::plotTimeline(){
 	// printing process id
 	std::cout << " <" << std::setw(2) << std::setfill('0') << id << ">: ";
 
 	// plotting timeline
-	for (int i = 0; i <= max(deadline,completionTime); i++){
+	for (int i = 0; i <= std::max(deadline,completionTime); i++){
 		if(i == releaseTime || i == deadline)
 			std::cout << "^";
 		else
@@ -136,7 +128,7 @@ void job::printStats() {
 }
 
 int job::release() {
-	return dependenciesFrom.empty() ? READY : WAITING;
+	return dependenciesFrom.empty() ? utilities::READY : utilities::WAITING;
 }
 
 bool job::removeDependency(int _id){

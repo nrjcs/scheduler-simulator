@@ -12,19 +12,17 @@
 
 using namespace lists;
 
-enum { EXECUTED, INCOMING, READY, RUNNING, WAITING }; 			//jobs status
-
 void readFromFile();											// load data from input file
 void readAndInitialiseJob(int jobId,  std::istringstream& iss); // read from input the job information and initialise it
 void removeDependencies(int jobId);								// alerts all the linked jobs that the jobId has finished
 
 bool preemptive = true;											// by default the machine is preemptive
 bool bestEffort = true;											// by default the machine is best effort (executes unfeasible jobs)
-std::vector<processor> processors;								// array of system's processors
 std::vector<job> jobs;											// array of system's jobs
 int jobsThatNotMetTheirDeadline = 0;							// current jobs number that finished after their deadline
 int unfeasibleJobsNumber = 0;									// current unfeasible jobs number
 unsigned totalJobsNumber;										// total number of jobs in the system
+unsigned processorsNumber;
 
 int main(int argc, char** argv){
 	//initialising everything
@@ -32,7 +30,7 @@ int main(int argc, char** argv){
 
     std::cout << "Starting machine...";
 
-    scheduler(preemptive, bestEffort, processors, jobs, unfeasibleJobsNumber);
+    scheduler(preemptive, bestEffort, processorsNumber, jobs, unfeasibleJobsNumber);
 
     return 0;
 }
@@ -49,13 +47,13 @@ void readAndInitialiseJob(int jobId,  std::istringstream& iss) {
 		unfeasibleJobsNumber++;
 		if(!bestEffort) { //if the system is not best effort the job is not going to be executed
 			removeDependencies(jobId);
-			addToList(jobId, EXECUTED);
+			addToList(jobId, utilities::EXECUTED);
 			return;
 		}
 	}
 	// adding dependencies
 	while (iss >> temp) {
-		if(!isInList(temp, EXECUTED)) { //if the job isn't executed yet
+		if(!isInList(temp, utilities::EXECUTED)) { //if the job isn't executed yet
 			jobs[jobId].addDependency(temp);
 			jobs[temp].alertThisJobWhenDone(jobId);
 		}
@@ -65,7 +63,6 @@ void readAndInitialiseJob(int jobId,  std::istringstream& iss) {
 
 void readFromFile() {
 	std::cout << "Initialising machine...\n\nMachine statistics\n";
-	unsigned processorsNumber;
 	std::ifstream myFile("input");
 
 	int jobId = -1, lineNumber = -1;
@@ -98,9 +95,6 @@ void readFromFile() {
 			case 2:
 				iss >> processorsNumber;
 				std::cout << " -Processors: " << processorsNumber << ";\n";
-				processors.assign(processorsNumber, processor());
-				for(unsigned i = 0; i < processorsNumber; i++)
-					processors[i].initialise(i+1);
 				break;
 			case 3:
 				iss >> totalJobsNumber;
@@ -117,6 +111,6 @@ void removeDependencies(int jobId) {
 
 	for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++)
 		if( jobs[*it].removeDependency(jobId) )
-			if(isInList(*it,WAITING))
-				swapList(*it, WAITING, READY);
+			if(isInList(*it,utilities::WAITING))
+				swapList(*it, utilities::WAITING, utilities::READY);
 }
