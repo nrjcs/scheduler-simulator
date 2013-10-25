@@ -50,4 +50,13 @@ namespace lists {
 			case utilities::WAITING: waitingJobsList.push_back(jobId); break;
 		}
 	}
+
+	void removeDependencies(int jobId, std::vector<job>& _jobs) {
+		std::list<int> listDependenciesTo = _jobs[jobId].getListDependenciesTo();
+
+		for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++)
+			if(_jobs[*it].removeDependency(jobId) )
+				if(isInList(*it,utilities::WAITING))
+					swapList(*it, utilities::WAITING, utilities::READY);
+	}
 }

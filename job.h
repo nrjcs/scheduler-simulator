@@ -8,6 +8,8 @@
  *                                                      *
  * Author: Federico Zanetello                           *
  ********************************************************/
+#ifndef JOB_H
+#define JOB_H
 #include "utilities.h"
 
 class job {
@@ -36,3 +38,4 @@ class job {
         std::list<int> dependenciesFromCopy;											//set on initialization, tells you which jobs our job must wait prior execution
         std::list<int> dependenciesTo;													//when executed, the job alert these jobs that his execution is complete
 };
+#endif

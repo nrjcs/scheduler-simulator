@@ -27,6 +27,8 @@ scheduler::scheduler(bool _preemptive, bool _bestEffort, unsigned _processorsNum
 	clockStep = -1;
 	jobsThatNotMetTheirDeadline = 0;
 
+	utilities::wait_enter_key();
+
     std::cout << "Starting machine...";
 
     //main loop
@@ -65,7 +67,7 @@ bool scheduler::executeStep(){
 				processors[i].setJob(-1); //remove job from processor
 				addToList(processRunning, utilities::EXECUTED); //add job in executed jobs list
 				jobsThatNotMetTheirDeadline += jobs[processRunning].deadlineMet() ? 0 : 1;
-				removeDependencies(processRunning); // alerts other jobs about that the job finished
+				removeDependencies(processRunning, jobs); // alerts other jobs about that the job finished
 
 				somethingEnded = true; //for return porpouses
 			}
@@ -102,12 +104,11 @@ void scheduler::printMachineTimeline() {
 	for(std::vector<processor>::size_type i = 0; i != processors.size(); ++i)
 		processors[i].printTimeline();
 
-//	wait();
 
 	for(std::vector<job>::size_type i = 0; i != jobs.size(); ++i)
 		jobs[i].plotTimeline();
 
-//	wait();
+	utilities::wait_enter_key();
 
 	std::cout << 	"\nJobs statistics\n\n";
 	for(std::vector<job>::size_type i = 0; i != jobs.size(); ++i)
@@ -140,16 +141,9 @@ void scheduler::printReport() {
 	    	else
 	    		std::cout << jobsThatNotMetTheirDeadline << " jobs missed their deadline.\n\n";
 
+	    utilities::wait_enter_key();
+
 	    printMachineTimeline();
-}
-
-void scheduler::removeDependencies(int jobId) {
-	std::list<int> listDependenciesTo = jobs[jobId].getListDependenciesTo();
-
-	for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++)
-		if( jobs[*it].removeDependency(jobId) )
-			if(isInList(*it, utilities::WAITING))
-				swapList(*it, utilities::WAITING, utilities::READY);
 }
 
 void scheduler::dispatcher() {

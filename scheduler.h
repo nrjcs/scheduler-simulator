@@ -22,7 +22,6 @@ class scheduler {
 		bool executeStep();												// makes each processor to execute one step: returns true if one or more jobs finish
 		std::map<int,int> getProcessorsOrderedByJobId();				// returns a map with a link to the processors ordered by their current executing job Ids
 		void printMachineTimeline();									// prints report of the machine behavior
-		void removeDependencies(int jobId);								// alerts all the linked jobs that the jobId has finished
 		void printReport();												// prints the final report
 		void step();													// it's like a clock
 		bool preemptive;												// by default the machine is preemptive

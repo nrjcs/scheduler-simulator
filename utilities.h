@@ -25,7 +25,7 @@ namespace utilities {
 	void printIntIntMap(std::map<int,int>& myMap);							// prints the input <int,int> map
 	void printList(std::list<int>& myList);									// prints the input int list
 	void printVector(std::vector<int>& myVect);								// prints the input int vector
-	void wait();															// stops the program execution until the user press the return key
+	void wait_enter_key();															// stops the program execution until the user press the return key
 }
 
 #endif

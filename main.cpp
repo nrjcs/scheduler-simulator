@@ -9,12 +9,10 @@
  * Author: Federico Zanetello                           *
  ********************************************************/
 #include "scheduler.h"
-
 using namespace lists;
 
 void readFromFile();											// load data from input file
 void readAndInitialiseJob(int jobId,  std::istringstream& iss); // read from input the job information and initialise it
-void removeDependencies(int jobId);								// alerts all the linked jobs that the jobId has finished
 
 bool preemptive = true;											// by default the machine is preemptive
 bool bestEffort = true;											// by default the machine is best effort (executes unfeasible jobs)
@@ -46,7 +44,7 @@ void readAndInitialiseJob(int jobId,  std::istringstream& iss) {
 	if(!jobs[jobId].isFeasible()){ //if the job is unfeasible
 		unfeasibleJobsNumber++;
 		if(!bestEffort) { //if the system is not best effort the job is not going to be executed
-			removeDependencies(jobId);
+			removeDependencies(jobId, jobs);
 			addToList(jobId, utilities::EXECUTED);
 			return;
 		}
@@ -104,13 +102,4 @@ void readFromFile() {
 			default: readAndInitialiseJob(++jobId,iss);
 		}
 	}
-}
-
-void removeDependencies(int jobId) {
-	std::list<int> listDependenciesTo = jobs[jobId].getListDependenciesTo();
-
-	for (std::list<int>::iterator it = listDependenciesTo.begin(); it != listDependenciesTo.end(); it++)
-		if( jobs[*it].removeDependency(jobId) )
-			if(isInList(*it,utilities::WAITING))
-				swapList(*it, utilities::WAITING, utilities::READY);
 }

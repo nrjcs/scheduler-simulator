@@ -9,6 +9,7 @@
  * Author: Federico Zanetello                           *
  ********************************************************/
 #include "utilities.h"
+#include "job.h"
 #include <algorithm>
 
 namespace lists {
@@ -20,5 +21,6 @@ namespace lists {
 	void addToList(int jobId,int whichList);					// add a job to a list or queue
 	bool isInList(int whichList, int Jobid);					// check whether a job is on a list
 	void removeFromReady(int processId);						// remove a job from one list to another
+	void removeDependencies(int jobId, std::vector<job>& _jobs); //lol
 	void swapList(int ProcessId, int fromList, int toList);		// swap jobs among ready and waiting lists
 }

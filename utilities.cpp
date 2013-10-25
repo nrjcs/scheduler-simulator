@@ -37,7 +37,7 @@ namespace utilities {
 		std::cout << '\n';
 	}
 
-	void wait() {
+	void wait_enter_key() {
 		std::cout << "Press ENTER to continue...\n";
 		std::cin.ignore( std::numeric_limits <std::streamsize> ::max(), '\n' );
 	}
