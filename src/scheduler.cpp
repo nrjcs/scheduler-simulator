@@ -29,8 +29,6 @@ scheduler::scheduler(bool _preemptive, bool _bestEffort, unsigned _processorsNum
 
 	utilities::wait_enter_key();
 
-    std::cout << "Starting machine...";
-
     //main loop
     while(executedJobsList.size() + waitingJobsList.size() < totalJobsNumber)
     	step();
@@ -108,8 +106,9 @@ void scheduler::printMachineTimeline() {
 	for(std::vector<job>::size_type i = 0; i != jobs.size(); ++i)
 		jobs[i].plotTimeline();
 
+	std::cout << 	"\n";
 	utilities::wait_enter_key();
-
+	system("clear");
 	std::cout << 	"\nJobs statistics\n\n";
 	for(std::vector<job>::size_type i = 0; i != jobs.size(); ++i)
 		jobs[i].printStats();

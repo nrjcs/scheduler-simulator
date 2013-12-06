@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project(progettoZanetello)
+file(GLOB files src/*.cpp)
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+add_executable(progettoZanetello ${files})

@@ -26,7 +26,7 @@ int main(int argc, char** argv){
 	//initialising everything
 	readFromFile();
 
-    std::cout << "Starting machine...";
+    std::cout << "Starting machine...\n\n";
 
     scheduler(preemptive, bestEffort, processorsNumber, jobs, unfeasibleJobsNumber);
 
@@ -60,8 +60,9 @@ void readAndInitialiseJob(int jobId,  std::istringstream& iss) {
 }
 
 void readFromFile() {
+    system("clear");
 	std::cout << "Initialising machine...\n\nMachine statistics\n";
-	std::ifstream myFile("input");
+	std::ifstream myFile("input.txt");
 
 	int jobId = -1, lineNumber = -1;
 	std::string line;
